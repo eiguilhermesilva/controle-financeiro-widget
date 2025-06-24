@@ -3,404 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Controle Financeiro</title>
+    <title>Controle Financeiro Completo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- CSS EMBUTIDO --- */
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fff;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Alinha ao topo para evitar sobrecarga em telas pequenas */
-            padding: 0px;
+            align-items: flex-start;
+            padding: 20px;
             min-height: 100vh;
-            margin: 0;
-            box-sizing: border-box;
         }
-
+        
         .financial-widget {
             background-color: #ffffff;
-            border-radius: 0px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.0);
-            width: 100%; /* Por padrão, ocupa a largura total disponível */
-            max-width: 1080px; /* <-- AQUI VOCÊ CONTROLA A LARGURA MÁXIMA EM TELAS MAIORES (PC) */
-                               /* Para aumentar o widget no PC, aumente este valor (ex: 1000px, 1200px) */
-                               /* Lembre-se que o padding do widget também adiciona à largura total */
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 1200px;
             padding: 30px;
-            box-sizing: border-box;
-            position: relative; /* Necessário para o rodapé fixo dentro do widget */
-            padding-bottom: 60px; /* Espaço para o rodapé interno */
+            position: relative;
+            padding-bottom: 60px;
+            overflow: hidden;
         }
-
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+        
         h1 {
             color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.0em;
+            font-size: 2.4em;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-
-        h2 {
-            color: #34495e;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            font-size: 1.0em;
-            font-weight: 500;
+        
+        h1 i {
+            color: #3498db;
         }
-
-        h3 {
-            color: #7f8c8d;
-            font-size: 1.0em;
-            margin-bottom: 5px;
+        
+        .date-display {
+            background: #f8f9fa;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #555;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-
+        
         .input-section {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             margin-bottom: 30px;
             align-items: flex-end;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
         }
-
+        
         .input-group {
             flex: 1;
             min-width: 200px;
         }
-
+        
         .input-group label {
             display: block;
             margin-bottom: 8px;
             color: #555;
             font-weight: 500;
         }
-
-        .input-group input[type="text"],
-        .input-group input[type="number"] {
-            width: calc(100% - 20px);
-            padding: 12px;
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px;
             border: 1px solid #dfe6e9;
             border-radius: 8px;
             font-size: 1em;
             color: #34495e;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
-
-        .input-group input[type="text"]:focus,
-        .input-group input[type="number"]:focus {
+        
+        .input-group input:focus {
             border-color: #3498db;
             outline: none;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
-
+        
         .input-actions {
             display: flex;
             gap: 10px;
             flex-grow: 1;
             justify-content: flex-end;
         }
-
+        
         .btn {
-            padding: 12px 25px;
+            padding: 14px 30px;
             border: none;
             border-radius: 8px;
-            font-size: 1.0em;
+            font-size: 1.05em;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: all 0.3s ease;
             font-weight: 600;
             color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
+        
         .btn-income {
-            background-color: #27ae60; /* Verde */
+            background: linear-gradient(to right, #27ae60, #2ecc71);
         }
-
+        
         .btn-income:hover {
-            background-color: #2ecc71;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
         }
-
+        
         .btn-expense {
-            background-color: #e74c3c; /* Vermelho */
+            background: linear-gradient(to right, #e74c3c, #ff6b6b);
         }
-
+        
         .btn-expense:hover {
-            background-color: #ff6b6b;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
         }
-
+        
         .btn-delete {
-            background-color: #bdc3c7; /* Cinza */
+            background: linear-gradient(to right, #bdc3c7, #95a5a6);
             color: #34495e;
-            padding: 6px 10px;
-            font-size: 0.85em;
+            padding: 8px 15px;
+            font-size: 0.9em;
         }
-
+        
         .btn-delete:hover {
-            background-color: #95a5a6;
+            background: linear-gradient(to right, #95a5a6, #7f8c8d);
         }
-
+        
         .btn-image {
-            background-color: #3498db; /* Azul */
+            background: linear-gradient(to right, #3498db, #5dade2);
             width: 100%;
             margin-top: 30px;
+            padding: 16px;
+            font-size: 1.1em;
+            justify-content: center;
         }
-
+        
         .btn-image:hover {
-            background-color: #5dade2;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
         }
-
+        
         .summary-section {
             display: flex;
             justify-content: space-around;
-            background-color: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
-
+        
         .summary-item {
             text-align: center;
-            min-width: 150px;
+            min-width: 200px;
             flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
-
+        
+        .summary-item h3 {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
         .summary-item p {
-            font-size: 1.4em;
+            font-size: 1.8em;
             font-weight: 700;
             margin: 5px 0 0;
         }
-
+        
         #total-income {
             color: #27ae60;
         }
-
+        
         #total-expense {
             color: #e74c3c;
         }
-
+        
         #current-balance {
             color: #3498db;
         }
-
+        
+        .data-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        
         .data-section table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-
+        
         .data-section th,
         .data-section td {
-            padding: 12px 15px;
+            padding: 14px 15px;
             text-align: center;
             border-bottom: 1px solid #ecf0f1;
         }
-
+        
         .data-section th {
-            background-color: #f8f9fa;
-            color: #555;
+            background-color: #2c3e50;
+            color: white;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.8em;
+            font-size: 0.85em;
         }
-
+        
         .data-section td {
             color: #34495e;
         }
-
+        
         .data-section tbody tr:nth-child(even) {
             background-color: #fdfdfd;
         }
-
+        
         .data-section tbody tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f0f7ff;
         }
-
+        
         .type-income {
             color: #27ae60;
             font-weight: 600;
+            background: rgba(39, 174, 96, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
         }
-
+        
         .type-expense {
             color: #e74c3c;
             font-weight: 600;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
         }
-
+        
         .charts-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
             margin-top: 20px;
-            padding: 20px 0;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.0);
         }
-
+        
         .chart-container {
-            width: 100%; /* Ajuste a largura do container do gráfico */
-            max-width: 600px; /* Limite a largura máxima para manter a proporção */
-            margin: 0 auto;
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
             background-color: white;
-            padding: 0px;
-            border-radius: 8px;
-            box-shadow: 0 0px 10px rgba(0, 0, 0, 0.0);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
-
-        /* --- Rodapé --- */
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .chart-title {
+            color: #2c3e50;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        
         .widget-footer {
             text-align: center;
-            margin-top: 20px; /* Espaçamento acima do rodapé */
-            color: #7f8c8d; /* Cor mais suave */
-            font-size: 0.85em; /* Fonte pequena */
-            padding-top: 20px; /* Espaçamento interno superior */
-            border-top: 1px solid #eee; /* Linha divisória */
-            position: absolute; /* Para fixar no final do widget */
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.95em;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             padding-bottom: 15px;
-            background-color: #ffffff; /* Fundo para garantir que não apareça por trás de outros elementos */
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
+            background-color: #ffffff;
         }
-
-        /* --- MEDIA QUERIES PARA RESPONSIVIDADE --- */
-
+        
         @media (max-width: 768px) {
             .financial-widget {
                 padding: 20px;
-                padding-bottom: 20px; /* Mantém espaço para o rodapé */
+                padding-bottom: 80px;
             }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
             .input-section {
                 flex-direction: column;
                 align-items: stretch;
             }
+            
             .input-actions {
                 flex-direction: column;
                 justify-content: center;
                 align-items: stretch;
             }
+            
             .btn {
                 width: 100%;
             }
+            
             .summary-section {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
             }
-            /* Ações gerais para tabelas em telas menores */
-            .data-section table,
-            .data-section thead,
-            .data-section tbody,
-            .data-section th,
-            .data-section td,
-            .data-section tr {
-                display: block; /* Transforma todos os elementos da tabela em blocos */
+            
+            .summary-item {
+                min-width: 100%;
             }
-
-            .data-section thead tr {
-                position: absolute; /* Esconde o cabeçalho original */
-                top: -9999px;
-                left: -9999px;
+            
+            .charts-container {
+                flex-direction: column;
+                align-items: center;
             }
-
-            .data-section tr {
-                border: 1px solid #ddd;
-                margin-bottom: 15px;
-                border-radius: 8px;
-                overflow: hidden; /* Garante que o border-radius funcione */
-            }
-
-            .data-section td {
-                border: none; /* Remove bordas internas das células */
-                border-bottom: 1px solid #eee;
-                position: relative;
-                padding-left: 50%; /* Espaço para o "cabeçalho" da célula */
-                text-align: right; /* Alinha o valor à direita */
-                font-size: 0.95em;
-            }
-
-            .data-section td:last-child {
-                border-bottom: 0; /* Remove a borda da última célula */
-            }
-
-            .data-section td::before {
-                /* Exibe o cabeçalho como um "label" para cada célula */
-                content: attr(data-label); /* Usa o atributo data-label definido no HTML */
-                position: absolute;
-                left: 10px;
-                width: 45%;
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
-                font-weight: bold;
-                color: #555;
-            }
+            
             .chart-container {
-                width: 100%;
-                padding: 0px;
-            }
-
-            .widget-footer {
-                margin-top: 15px; /* Ajuste a margem superior em telas pequenas */
-                position: relative; /* Pode ser melhor para que não fique por cima em alguns casos */
-                padding-bottom: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            h2 {
-                font-size: 1.4em;
-            }
-            .summary-item p {
-                font-size: 1.5em;
+                max-width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <div class="financial-widget" id="financial-widget-content">
-        <h1>Controle Financeiro Pessoal</h1>
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Controle Financeiro Pessoal</h1>
+            <div class="date-display">
+                <i class="fas fa-calendar-alt"></i> <span id="current-date"></span>
+            </div>
+        </div>
 
         <div class="input-section">
             <div class="input-group">
-                <label for="description">Descrição:</label>
+                <label for="description"><i class="fas fa-pen"></i> Descrição:</label>
                 <input type="text" id="description" placeholder="Ex: Salário, Aluguel" required>
             </div>
             <div class="input-group">
-                <label for="value">Valor (R$):</label>
+                <label for="value"><i class="fas fa-money-bill-wave"></i> Valor (R$):</label>
                 <input type="number" id="value" placeholder="Ex: 1500.00" step="0.01" required>
             </div>
             <div class="input-actions">
-                <button id="add-income" class="btn btn-income">Adicionar Renda</button>
-                <button id="add-expense" class="btn btn-expense">Adicionar Despesa</button>
+                <button id="add-income" class="btn btn-income">
+                    <i class="fas fa-plus-circle"></i> Adicionar Renda
+                </button>
+                <button id="add-expense" class="btn btn-expense">
+                    <i class="fas fa-minus-circle"></i> Adicionar Despesa
+                </button>
             </div>
         </div>
 
         <div class="summary-section">
             <div class="summary-item">
-                <h3>Renda Total:</h3>
+                <h3><i class="fas fa-arrow-up"></i> Renda Total:</h3>
                 <p id="total-income">R$ 0.00</p>
             </div>
             <div class="summary-item">
-                <h3>Despesa Total:</h3>
+                <h3><i class="fas fa-arrow-down"></i> Despesa Total:</h3>
                 <p id="total-expense">R$ 0.00</p>
             </div>
             <div class="summary-item">
-                <h3>Saldo Atual:</h3>
+                <h3><i class="fas fa-balance-scale"></i> Saldo Atual:</h3>
                 <p id="current-balance">R$ 0.00</p>
             </div>
         </div>
 
         <div class="data-section">
-            <h2>Detalhes das Transações</h2>
+            <h2><i class="fas fa-list"></i> Detalhes das Transações</h2>
             <table id="transactions-table">
                 <thead>
                     <tr>
@@ -411,19 +446,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
         <div class="charts-section">
-            <h2>Gráficos de Finanças</h2>
-            <div class="chart-container">
-                <canvas id="expense-chart"></canvas>
+            <h2><i class="fas fa-chart-pie"></i> Gráficos de Finanças</h2>
+            <div class="charts-container">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">Distribuição de Despesas</div>
+                    </div>
+                    <canvas id="expense-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">Análise Percentual</div>
+                    </div>
+                    <canvas id="summary-chart"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="image-section">
-            <button id="generate-image" class="btn btn-image">Gerar Imagem do Relatório</button>
+            <button id="generate-image" class="btn btn-image">
+                <i class="fas fa-camera"></i> Gerar Imagem do Relatório
+            </button>
         </div>
 
         <div class="widget-footer">
@@ -432,8 +480,6 @@
     </div>
 
     <script>
-        /* --- JAVASCRIPT EMBUTIDO --- */
-
         // Referências aos elementos do DOM
         const descriptionInput = document.getElementById('description');
         const valueInput = document.getElementById('value');
@@ -445,11 +491,23 @@
         const transactionsTableBody = document.querySelector('#transactions-table tbody');
         const generateImageBtn = document.getElementById('generate-image');
         const expenseChartCanvas = document.getElementById('expense-chart').getContext('2d');
+        const summaryChartCanvas = document.getElementById('summary-chart').getContext('2d');
         const financialWidgetContent = document.getElementById('financial-widget-content');
+        const currentDateElem = document.getElementById('current-date');
+        
+        // Atualizar data atual
+        const now = new Date();
+        currentDateElem.textContent = now.toLocaleDateString('pt-BR', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
 
         // Variáveis globais para armazenar os dados
         let transactions = [];
-        let expenseChart; // Variável para armazenar a instância do Chart.js
+        let expenseChart;
+        let summaryChart;
 
         // --- Funções Principais ---
 
@@ -480,8 +538,8 @@
             const transaction = {
                 id: Date.now(), // ID único para a transação
                 description,
-                value: type === 'expense' ? -value : value, // Negativo para despesa
-                type // 'income' ou 'expense'
+                value: type === 'expense' ? -value : value,
+                type
             };
 
             transactions.push(transaction);
@@ -513,7 +571,7 @@
                 if (transaction.type === 'income') {
                     totalIncome += transaction.value;
                 } else {
-                    totalExpense += Math.abs(transaction.value); // Usa valor absoluto para despesa
+                    totalExpense += Math.abs(transaction.value);
                 }
             });
 
@@ -525,19 +583,18 @@
 
             // Ajusta a cor do saldo com base no valor
             if (currentBalance >= 0) {
-                currentBalanceElem.style.color = '#3498db'; // Azul para positivo/zero
+                currentBalanceElem.style.color = '#3498db';
             } else {
-                currentBalanceElem.style.color = '#e74c3c'; // Vermelho para negativo
+                currentBalanceElem.style.color = '#e74c3c';
             }
         }
 
         // Renderiza as transações na tabela
         function renderTransactionsTable() {
-            transactionsTableBody.innerHTML = ''; // Limpa a tabela antes de renderizar novamente
+            transactionsTableBody.innerHTML = '';
 
             transactions.forEach(transaction => {
                 const row = transactionsTableBody.insertRow();
-                // Adiciona o atributo data-label para uso no CSS responsivo
                 const typeCell = row.insertCell();
                 typeCell.innerHTML = `<span class="${transaction.type === 'income' ? 'type-income' : 'type-expense'}">${transaction.type === 'income' ? 'Renda' : 'Despesa'}</span>`;
                 typeCell.setAttribute('data-label', 'Tipo');
@@ -553,7 +610,7 @@
                 const actionsCell = row.insertCell();
                 actionsCell.setAttribute('data-label', 'Ações');
                 const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Excluir';
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
                 deleteBtn.classList.add('btn', 'btn-delete');
                 deleteBtn.onclick = () => deleteTransaction(transaction.id);
                 actionsCell.appendChild(deleteBtn);
@@ -562,52 +619,62 @@
 
         // Atualiza os gráficos
         function updateCharts() {
+            // Calcular valores para os gráficos
             const expenseCategories = {};
+            let totalIncome = 0;
+            let totalExpense = 0;
+            
             transactions.forEach(t => {
-                if (t.type === 'expense') {
-                    // Para o gráfico de despesas, agrupamos por descrição (pode ser refinado para categorias reais)
-                    const category = t.description;
-                    expenseCategories[category] = (expenseCategories[category] || 0) + Math.abs(t.value);
+                if (t.type === 'income') {
+                    totalIncome += t.value;
+                } else {
+                    totalExpense += Math.abs(t.value);
+                    expenseCategories[t.description] = (expenseCategories[t.description] || 0) + Math.abs(t.value);
                 }
             });
+            
+            const currentBalance = totalIncome - totalExpense;
+            
+            // Calcular porcentagens para o gráfico de barras
+            const incomePercent = totalIncome > 0 ? 100 : 0;
+            const expensePercent = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
+            const balancePercent = totalIncome > 0 ? (currentBalance / totalIncome) * 100 : 0;
+            
+            // Atualizar gráfico de despesas
+            updateExpenseChart(Object.keys(expenseCategories), Object.values(expenseCategories));
+            
+            // Atualizar gráfico de porcentagens
+            updateSummaryChart(incomePercent, expensePercent, balancePercent);
+        }
 
-            const labels = Object.keys(expenseCategories);
-            const data = Object.values(expenseCategories);
-
+        // Atualizar gráfico de despesas (pizza)
+        function updateExpenseChart(labels, data) {
             if (expenseChart) {
-                expenseChart.destroy(); // Destroi o gráfico anterior antes de criar um novo
+                expenseChart.destroy();
             }
 
             expenseChart = new Chart(expenseChartCanvas, {
-                type: 'doughnut', // Gráfico de pizza
+                type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: data,
                         backgroundColor: [
                             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-                            '#E7E9ED', '#8D6E63', '#4DD0E1', '#F44336'
+                            '#8D6E63', '#4DD0E1', '#F44336', '#9C27B0'
                         ],
                         hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // Permite que o gráfico se ajuste ao container
+                    maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'Distribuição de Despesas',
-                            font: {
-                                size: 18
-                            },
-                            color: '#34495e'
-                        },
                         legend: {
                             position: 'right',
                             labels: {
                                 font: {
-                                    size: 12
+                                    size: 11
                                 },
                                 color: '#555'
                             }
@@ -631,6 +698,67 @@
             });
         }
 
+        // Atualizar gráfico de porcentagens (barras horizontais)
+        function updateSummaryChart(incomePercent, expensePercent, balancePercent) {
+            if (summaryChart) {
+                summaryChart.destroy();
+            }
+
+            summaryChart = new Chart(summaryChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: ['Rendas', 'Gastos', 'Saldo'],
+                    datasets: [{
+                        label: 'Porcentagem em relação à renda total',
+                        data: [incomePercent, expensePercent, balancePercent],
+                        backgroundColor: [
+                            'rgba(39, 174, 96, 0.7)',   // Verde para rendas
+                            'rgba(231, 76, 60, 0.7)',   // Vermelho para gastos
+                            'rgba(52, 152, 219, 0.7)'   // Azul para saldo
+                        ],
+                        borderColor: [
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(231, 76, 60, 1)',
+                            'rgba(52, 152, 219, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.x.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Porcentagem (%)',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Limpa os campos de entrada
         function clearInputs() {
             descriptionInput.value = '';
@@ -640,38 +768,33 @@
 
         // Formata o valor para moeda brasileira
         function formatCurrency(value) {
-            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            return value.toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
-        // --- Geração de Imagem (usando html2canvas) ---
+        // Geração de imagem
         async function generateImage() {
-            // Verifica se a biblioteca html2canvas está carregada
-            if (typeof html2canvas === 'undefined') {
-                console.error('Erro: html2canvas library not loaded. Please check the CDN link.');
-                alert('Erro ao gerar imagem: A biblioteca de captura não foi carregada corretamente. Tente recarregar a página.');
-                return;
-            }
-
             try {
-                // Captura o elemento principal do widget.
                 const canvas = await html2canvas(financialWidgetContent, {
-                    scale: 2, // Aumenta a resolução da imagem para melhor qualidade
-                    useCORS: true, // Importante se tiver imagens externas ou fontes
-                    logging: false // Desativa logs do html2canvas no console
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
                 });
 
-                // Cria um link para download da imagem
                 const image = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
                 link.href = image;
                 link.download = 'relatorio_financeiro.png';
-                document.body.appendChild(link); // Anexa temporariamente o link ao corpo
-                link.click(); // Simula o clique para iniciar o download
-                document.body.removeChild(link); // Remove o link após o download
-
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             } catch (error) {
-                console.error("Erro inesperado ao gerar imagem:", error);
-                alert('Ocorreu um erro inesperado ao gerar a imagem. Verifique o console para mais detalhes.');
+                console.error("Erro ao gerar imagem:", error);
+                alert('Ocorreu um erro ao gerar a imagem. Tente novamente.');
             }
         }
 
@@ -680,8 +803,27 @@
         addExpenseBtn.addEventListener('click', () => addTransaction('expense'));
         generateImageBtn.addEventListener('click', generateImage);
 
+        // Adicionar transações de exemplo
+        function addSampleData() {
+            if (transactions.length === 0) {
+                transactions = [
+                    { id: 1, description: "Salário", value: 5000, type: "income" },
+                    { id: 2, description: "Freelance", value: 1500, type: "income" },
+                    { id: 3, description: "Aluguel", value: -1200, type: "expense" },
+                    { id: 4, description: "Supermercado", value: -450, type: "expense" },
+                    { id: 5, description: "Transporte", value: -300, type: "expense" },
+                    { id: 6, description: "Lazer", value: -600, type: "expense" }
+                ];
+                saveTransactions();
+                updateUI();
+            }
+        }
+
         // Carrega as transações e atualiza a UI ao carregar a página
-        document.addEventListener('DOMContentLoaded', loadTransactions);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTransactions();
+            addSampleData();
+        });
     </script>
 </body>
 </html>
