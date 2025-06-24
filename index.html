@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Widget de Controle Financeiro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         /* --- CSS EMBUTIDO --- */
         body {
@@ -354,13 +355,6 @@
     <script>
         /* --- JAVASCRIPT EMBUTIDO --- */
 
-        // Garante que o jsPDF está disponível globalmente após ser carregado
-        const { jsPDF } = window.jspdf;
-
-        // Variáveis globais para armazenar os dados
-        let transactions = [];
-        let expenseChart; // Variável para armazenar a instância do Chart.js
-
         // Referências aos elementos do DOM
         const descriptionInput = document.getElementById('description');
         const valueInput = document.getElementById('value');
@@ -372,6 +366,10 @@
         const transactionsTableBody = document.querySelector('#transactions-table tbody');
         const generatePdfBtn = document.getElementById('generate-pdf');
         const expenseChartCanvas = document.getElementById('expense-chart').getContext('2d');
+
+        // Variáveis globais para armazenar os dados
+        let transactions = [];
+        let expenseChart; // Variável para armazenar a instância do Chart.js
 
         // --- Funções Principais ---
 
@@ -560,87 +558,107 @@
             return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // --- Geração de PDF (Simplificada sem gráfico capturado via html2canvas) ---
+        // --- Geração de PDF (Ajustada para robustez) ---
         async function generatePDF() {
-            const doc = new jsPDF();
+            // Verifica se a biblioteca jsPDF está carregada
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                console.error('jsPDF library not loaded. Please check the CDN link.');
+                alert('Erro ao gerar PDF: A biblioteca de PDF não foi carregada corretamente. Tente recarregar a página.');
+                return;
+            }
 
-            doc.setFontSize(22);
-            doc.setTextColor(44, 62, 80); // #2c3e50
-            doc.text('Relatório de Controle Financeiro Pessoal', 105, 20, null, null, 'center');
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-            doc.setFontSize(10);
-            doc.setTextColor(127, 140, 141); // #7f8c8d
-            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 10, 30);
+                doc.setFontSize(22);
+                doc.setTextColor(44, 62, 80); // #2c3e50
+                doc.text('Relatório de Controle Financeiro Pessoal', 105, 20, null, null, 'center');
 
-            // --- Resumo Financeiro ---
-            doc.setFontSize(14);
-            doc.setTextColor(52, 73, 94); // #34495e
-            doc.text('Resumo Financeiro', 10, 45);
+                doc.setFontSize(10);
+                doc.setTextColor(127, 140, 141); // #7f8c8d
+                doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 10, 30);
 
-            const summaryData = [
-                ['Renda Total:', totalIncomeElem.textContent],
-                ['Despesa Total:', totalExpenseElem.textContent],
-                ['Saldo Atual:', currentBalanceElem.textContent]
-            ];
+                // --- Resumo Financeiro ---
+                doc.setFontSize(14);
+                doc.setTextColor(52, 73, 94); // #34495e
+                doc.text('Resumo Financeiro', 10, 45);
 
-            doc.autoTable({
-                startY: 50,
-                head: [['Item', 'Valor']],
-                body: summaryData,
-                theme: 'grid',
-                headStyles: { fillColor: [236, 240, 241], textColor: [85, 85, 85] }, // #ecf0f1, #555
-                bodyStyles: { textColor: [52, 73, 94] }, // #34495e
-                columnStyles: {
-                    0: { fontStyle: 'bold' },
-                    1: { halign: 'right' }
-                },
-                styles: {
-                    font: 'helvetica',
-                    fontSize: 10,
-                    cellPadding: 3,
-                    valign: 'middle'
-                },
-                margin: { left: 10, right: 10 }
-            });
+                const summaryData = [
+                    ['Renda Total:', totalIncomeElem.textContent],
+                    ['Despesa Total:', totalExpenseElem.textContent],
+                    ['Saldo Atual:', currentBalanceElem.textContent]
+                ];
 
-            // --- Tabela de Transações ---
-            doc.setFontSize(14);
-            doc.setTextColor(52, 73, 94);
-            doc.text('Detalhes das Transações', 10, doc.autoTable.previous.finalY + 15);
+                // Certifique-se de que jspdf-autotable está disponível. Geralmente vem com jspdf.umd.min.js
+                if (typeof doc.autoTable === 'undefined') {
+                    console.error('jsPDF AutoTable plugin not loaded.');
+                    alert('Erro ao gerar PDF: O plugin de tabelas não foi carregado. Isso pode ser um problema com o CDN.');
+                    return;
+                }
 
-            const transactionsData = transactions.map(t => [
-                t.type === 'income' ? 'Renda' : 'Despesa',
-                t.description,
-                formatCurrency(Math.abs(t.value))
-            ]);
+                doc.autoTable({
+                    startY: 50,
+                    head: [['Item', 'Valor']],
+                    body: summaryData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [236, 240, 241], textColor: [85, 85, 85] }, // #ecf0f1, #555
+                    bodyStyles: { textColor: [52, 73, 94] }, // #34495e
+                    columnStyles: {
+                        0: { fontStyle: 'bold' },
+                        1: { halign: 'right' }
+                    },
+                    styles: {
+                        font: 'helvetica',
+                        fontSize: 10,
+                        cellPadding: 3,
+                        valign: 'middle'
+                    },
+                    margin: { left: 10, right: 10 }
+                });
 
-            doc.autoTable({
-                startY: doc.autoTable.previous.finalY + 20,
-                head: [['Tipo', 'Descrição', 'Valor']],
-                body: transactionsData,
-                theme: 'striped',
-                headStyles: { fillColor: [248, 249, 250], textColor: [85, 85, 85] }, // #f8f9fa, #555
-                bodyStyles: { textColor: [52, 73, 94] },
-                columnStyles: {
-                    0: { fontStyle: 'bold', cellWidth: 30 },
-                    2: { halign: 'right', cellWidth: 40 }
-                },
-                styles: {
-                    font: 'helvetica',
-                    fontSize: 9,
-                    cellPadding: 2,
-                    valign: 'middle'
-                },
-                margin: { left: 10, right: 10 }
-            });
+                // --- Tabela de Transações ---
+                doc.setFontSize(14);
+                doc.setTextColor(52, 73, 94);
+                doc.text('Detalhes das Transações', 10, doc.autoTable.previous.finalY + 15);
 
-            // Adiciona uma nota sobre o gráfico para esclarecer que ele não está no PDF
-            doc.setFontSize(10);
-            doc.setTextColor(127, 140, 141);
-            doc.text('O gráfico de despesas é visualizado apenas no site.', 105, doc.autoTable.previous.finalY + 30, null, null, 'center');
+                const transactionsData = transactions.map(t => [
+                    t.type === 'income' ? 'Renda' : 'Despesa',
+                    t.description,
+                    formatCurrency(Math.abs(t.value))
+                ]);
+
+                doc.autoTable({
+                    startY: doc.autoTable.previous.finalY + 20,
+                    head: [['Tipo', 'Descrição', 'Valor']],
+                    body: transactionsData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [248, 249, 250], textColor: [85, 85, 85] }, // #f8f9fa, #555
+                    bodyStyles: { textColor: [52, 73, 94] },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', cellWidth: 30 },
+                        2: { halign: 'right', cellWidth: 40 }
+                    },
+                    styles: {
+                        font: 'helvetica',
+                        fontSize: 9,
+                        cellPadding: 2,
+                        valign: 'middle'
+                    },
+                    margin: { left: 10, right: 10 }
+                });
+
+                // Adiciona uma nota sobre o gráfico para esclarecer que ele não está no PDF
+                doc.setFontSize(10);
+                doc.setTextColor(127, 140, 141);
+                doc.text('O gráfico de despesas é visualizado apenas no site.', 105, doc.autoTable.previous.finalY + 30, null, null, 'center');
 
 
-            doc.save('relatorio_financeiro.pdf');
+                doc.save('relatorio_financeiro.pdf');
+            } catch (error) {
+                console.error("Erro ao gerar PDF:", error);
+                alert('Ocorreu um erro inesperado ao gerar o PDF. Verifique o console para mais detalhes.');
+            }
         }
 
 
