@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Widget de Controle Financeiro</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -141,13 +140,13 @@
             background-color: #95a5a6;
         }
 
-        .btn-pdf {
+        .btn-image { /* Alterado de btn-pdf para btn-image */
             background-color: #3498db; /* Azul */
             width: 100%;
             margin-top: 30px;
         }
 
-        .btn-pdf:hover {
+        .btn-image:hover { /* Alterado de btn-pdf para btn-image */
             background-color: #5dade2;
             transform: translateY(-2px);
         }
@@ -292,8 +291,7 @@
     </style>
 </head>
 <body>
-    <div class="financial-widget">
-        <h1>Controle Financeiro Pessoal</h1>
+    <div class="financial-widget" id="financial-widget-content"> <h1>Controle Financeiro Pessoal</h1>
 
         <div class="input-section">
             <div class="input-group">
@@ -348,9 +346,8 @@
             </div>
         </div>
 
-        <div class="pdf-section">
-            <button id="generate-pdf" class="btn btn-pdf">Gerar Relatório PDF</button>
-        </div>
+        <div class="image-section">
+            <button id="generate-image" class="btn btn-image">Gerar Imagem do Relatório</button> </div>
     </div>
 
     <script>
@@ -365,8 +362,9 @@
         const totalExpenseElem = document.getElementById('total-expense');
         const currentBalanceElem = document.getElementById('current-balance');
         const transactionsTableBody = document.querySelector('#transactions-table tbody');
-        const generatePdfBtn = document.getElementById('generate-pdf');
+        const generateImageBtn = document.getElementById('generate-image'); // Alterado ID
         const expenseChartCanvas = document.getElementById('expense-chart').getContext('2d');
+        const financialWidgetContent = document.getElementById('financial-widget-content'); // Novo: elemento a ser capturado
 
         // Variáveis globais para armazenar os dados
         let transactions = [];
@@ -559,115 +557,43 @@
             return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // --- Geração de PDF (Com verificação robusta de carregamento de plugins) ---
-        async function generatePDF() {
-            // Verificações para garantir que jsPDF e AutoTable estejam carregados
-            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
-                console.error('Erro: jsPDF library not loaded.');
-                alert('Erro ao gerar PDF: A biblioteca de PDF não foi carregada. Tente recarregar a página.');
-                return;
-            }
-            // A AutoTable adiciona o método autoTable diretamente à instância do jsPDF
-            // e não necessariamente a um plugin.autotable diretamente no window.jspdf
-            // Mas podemos verificar se o método existe na classe jsPDF.
-            const { jsPDF } = window.jspdf;
-            if (typeof jsPDF.prototype.autoTable === 'undefined') {
-                console.error('Erro: jsPDF AutoTable plugin not loaded or correctly registered.');
-                alert('Erro ao gerar PDF: O plugin de tabelas não foi carregado corretamente. Isso pode ser um problema com o CDN ou a ordem de carregamento.');
+        // --- Geração de Imagem (usando html2canvas) ---
+        async function generateImage() {
+            // Verifica se a biblioteca html2canvas está carregada
+            if (typeof html2canvas === 'undefined') {
+                console.error('Erro: html2canvas library not loaded. Please check the CDN link.');
+                alert('Erro ao gerar imagem: A biblioteca de captura não foi carregada corretamente. Tente recarregar a página.');
                 return;
             }
 
             try {
-                const doc = new jsPDF(); // Cria a instância do documento PDF
-
-                doc.setFontSize(22);
-                doc.setTextColor(44, 62, 80); // #2c3e50
-                doc.text('Relatório de Controle Financeiro Pessoal', 105, 20, null, null, 'center');
-
-                doc.setFontSize(10);
-                doc.setTextColor(127, 140, 141); // #7f8c8d
-                doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 10, 30);
-
-                // --- Resumo Financeiro ---
-                doc.setFontSize(14);
-                doc.setTextColor(52, 73, 94); // #34495e
-                doc.text('Resumo Financeiro', 10, 45);
-
-                const summaryData = [
-                    ['Renda Total:', totalIncomeElem.textContent],
-                    ['Despesa Total:', totalExpenseElem.textContent],
-                    ['Saldo Atual:', currentBalanceElem.textContent]
-                ];
-
-                doc.autoTable({
-                    startY: 50,
-                    head: [['Item', 'Valor']],
-                    body: summaryData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [236, 240, 241], textColor: [85, 85, 85] }, // #ecf0f1, #555
-                    bodyStyles: { textColor: [52, 73, 94] }, // #34495e
-                    columnStyles: {
-                        0: { fontStyle: 'bold' },
-                        1: { halign: 'right' }
-                    },
-                    styles: {
-                        font: 'helvetica',
-                        fontSize: 10,
-                        cellPadding: 3,
-                        valign: 'middle'
-                    },
-                    margin: { left: 10, right: 10 }
+                // Captura o elemento principal do widget.
+                // Usamos o ID 'financial-widget-content' para ter certeza que pegamos todo o conteúdo relevante.
+                const canvas = await html2canvas(financialWidgetContent, {
+                    scale: 2, // Aumenta a resolução da imagem para melhor qualidade
+                    useCORS: true, // Importante se tiver imagens externas ou fontes
+                    logging: false // Desativa logs do html2canvas no console
                 });
 
-                // --- Tabela de Transações ---
-                doc.setFontSize(14);
-                doc.setTextColor(52, 73, 94);
-                doc.text('Detalhes das Transações', 10, doc.autoTable.previous.finalY + 15);
+                // Cria um link para download da imagem
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'relatorio_financeiro.png';
+                document.body.appendChild(link); // Anexa temporariamente o link ao corpo
+                link.click(); // Simula o clique para iniciar o download
+                document.body.removeChild(link); // Remove o link após o download
 
-                const transactionsData = transactions.map(t => [
-                    t.type === 'income' ? 'Renda' : 'Despesa',
-                    t.description,
-                    formatCurrency(Math.abs(t.value))
-                ]);
-
-                doc.autoTable({
-                    startY: doc.autoTable.previous.finalY + 20,
-                    head: [['Tipo', 'Descrição', 'Valor']],
-                    body: transactionsData,
-                    theme: 'striped',
-                    headStyles: { fillColor: [248, 249, 250], textColor: [85, 85, 85] }, // #f8f9fa, #555
-                    bodyStyles: { textColor: [52, 73, 94] },
-                    columnStyles: {
-                        0: { fontStyle: 'bold', cellWidth: 30 },
-                        2: { halign: 'right', cellWidth: 40 }
-                    },
-                    styles: {
-                        font: 'helvetica',
-                        fontSize: 9,
-                        cellPadding: 2,
-                        valign: 'middle'
-                    },
-                    margin: { left: 10, right: 10 }
-                });
-
-                // Adiciona uma nota sobre o gráfico para esclarecer que ele não está no PDF
-                doc.setFontSize(10);
-                doc.setTextColor(127, 140, 141);
-                doc.text('O gráfico de despesas é visualizado apenas no site.', 105, doc.autoTable.previous.finalY + 30, null, null, 'center');
-
-
-                doc.save('relatorio_financeiro.pdf');
             } catch (error) {
-                console.error("Erro inesperado ao gerar PDF:", error);
-                alert('Ocorreu um erro inesperado ao gerar o PDF. Verifique o console para mais detalhes.');
+                console.error("Erro inesperado ao gerar imagem:", error);
+                alert('Ocorreu um erro inesperado ao gerar a imagem. Verifique o console para mais detalhes.');
             }
         }
-
 
         // --- Event Listeners ---
         addIncomeBtn.addEventListener('click', () => addTransaction('income'));
         addExpenseBtn.addEventListener('click', () => addTransaction('expense'));
-        generatePdfBtn.addEventListener('click', generatePDF);
+        generateImageBtn.addEventListener('click', generateImage); // Evento agora para gerar imagem
 
         // Carrega as transações e atualiza a UI ao carregar a página
         document.addEventListener('DOMContentLoaded', loadTransactions);
