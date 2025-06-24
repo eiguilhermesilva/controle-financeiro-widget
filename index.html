@@ -247,6 +247,8 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
 
+        /* --- MEDIA QUERIES PARA RESPONSIVIDADE --- */
+
         @media (max-width: 768px) {
             .financial-widget {
                 padding: 20px;
@@ -267,9 +269,53 @@
                 flex-direction: column;
                 gap: 10px;
             }
-            .data-section th, .data-section td {
-                padding: 8px 10px;
-                font-size: 0.9em;
+            /* Ações gerais para tabelas em telas menores */
+            .data-section table,
+            .data-section thead,
+            .data-section tbody,
+            .data-section th,
+            .data-section td,
+            .data-section tr {
+                display: block; /* Transforma todos os elementos da tabela em blocos */
+            }
+
+            .data-section thead tr {
+                position: absolute; /* Esconde o cabeçalho original */
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .data-section tr {
+                border: 1px solid #ddd;
+                margin-bottom: 15px;
+                border-radius: 8px;
+                overflow: hidden; /* Garante que o border-radius funcione */
+            }
+
+            .data-section td {
+                border: none; /* Remove bordas internas das células */
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Espaço para o "cabeçalho" da célula */
+                text-align: right; /* Alinha o valor à direita */
+                font-size: 0.95em;
+            }
+
+            .data-section td:last-child {
+                border-bottom: 0; /* Remove a borda da última célula */
+            }
+
+            .data-section td::before {
+                /* Exibe o cabeçalho como um "label" para cada célula */
+                content: attr(data-label); /* Usa o atributo data-label definido no HTML */
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #555;
             }
             .chart-container {
                 width: 100%;
@@ -347,7 +393,8 @@
         </div>
 
         <div class="image-section">
-            <button id="generate-image" class="btn btn-image">Gerar Imagem do Relatório</button> </div>
+            <button id="generate-image" class="btn btn-image">Gerar Imagem do Relatório</button>
+        </div>
     </div>
 
     <script>
@@ -362,9 +409,9 @@
         const totalExpenseElem = document.getElementById('total-expense');
         const currentBalanceElem = document.getElementById('current-balance');
         const transactionsTableBody = document.querySelector('#transactions-table tbody');
-        const generateImageBtn = document.getElementById('generate-image'); // Alterado ID
+        const generateImageBtn = document.getElementById('generate-image');
         const expenseChartCanvas = document.getElementById('expense-chart').getContext('2d');
-        const financialWidgetContent = document.getElementById('financial-widget-content'); // Novo: elemento a ser capturado
+        const financialWidgetContent = document.getElementById('financial-widget-content');
 
         // Variáveis globais para armazenar os dados
         let transactions = [];
@@ -456,16 +503,18 @@
 
             transactions.forEach(transaction => {
                 const row = transactionsTableBody.insertRow();
-                const typeCell = row.insertCell();
-                const descriptionCell = row.insertCell();
-                const valueCell = row.insertCell();
+                // Adiciona o atributo data-label para uso no CSS responsivo
+                row.insertCell().innerHTML = `<span class="${transaction.type === 'income' ? 'type-income' : 'type-expense'}">${transaction.type === 'income' ? 'Renda' : 'Despesa'}</span>`;
+                row.cells[0].setAttribute('data-label', 'Tipo');
+
+                row.insertCell().textContent = transaction.description;
+                row.cells[1].setAttribute('data-label', 'Descrição');
+
+                row.insertCell().textContent = formatCurrency(Math.abs(transaction.value));
+                row.cells[2].setAttribute('data-label', 'Valor');
+
                 const actionsCell = row.insertCell();
-
-                typeCell.textContent = transaction.type === 'income' ? 'Renda' : 'Despesa';
-                typeCell.classList.add(transaction.type === 'income' ? 'type-income' : 'type-expense');
-                descriptionCell.textContent = transaction.description;
-                valueCell.textContent = formatCurrency(Math.abs(transaction.value));
-
+                actionsCell.setAttribute('data-label', 'Ações');
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Excluir';
                 deleteBtn.classList.add('btn', 'btn-delete');
@@ -568,7 +617,6 @@
 
             try {
                 // Captura o elemento principal do widget.
-                // Usamos o ID 'financial-widget-content' para ter certeza que pegamos todo o conteúdo relevante.
                 const canvas = await html2canvas(financialWidgetContent, {
                     scale: 2, // Aumenta a resolução da imagem para melhor qualidade
                     useCORS: true, // Importante se tiver imagens externas ou fontes
@@ -593,7 +641,7 @@
         // --- Event Listeners ---
         addIncomeBtn.addEventListener('click', () => addTransaction('income'));
         addExpenseBtn.addEventListener('click', () => addTransaction('expense'));
-        generateImageBtn.addEventListener('click', generateImage); // Evento agora para gerar imagem
+        generateImageBtn.addEventListener('click', generateImage);
 
         // Carrega as transações e atualiza a UI ao carregar a página
         document.addEventListener('DOMContentLoaded', loadTransactions);
