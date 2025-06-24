@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Widget de Controle Financeiro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -559,23 +559,26 @@
             return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // --- Geração de PDF (Ajustada para robustez do plugin AutoTable) ---
+        // --- Geração de PDF (Com verificação robusta de carregamento de plugins) ---
         async function generatePDF() {
-            // Verifica se a biblioteca jsPDF e o plugin AutoTable estão carregados
+            // Verificações para garantir que jsPDF e AutoTable estejam carregados
             if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
-                console.error('jsPDF library not loaded. Please check the CDN link.');
-                alert('Erro ao gerar PDF: A biblioteca de PDF não foi carregada corretamente. Tente recarregar a página.');
+                console.error('Erro: jsPDF library not loaded.');
+                alert('Erro ao gerar PDF: A biblioteca de PDF não foi carregada. Tente recarregar a página.');
                 return;
             }
-            if (typeof window.jspdf.plugin.autotable === 'undefined') { // Verificação para o plugin AutoTable
-                console.error('jsPDF AutoTable plugin not loaded. Please check the CDN link for jspdf.plugin.autotable.js');
-                alert('Erro ao gerar PDF: O plugin de tabelas não foi carregado. Isso pode ser um problema com o CDN.');
+            // A AutoTable adiciona o método autoTable diretamente à instância do jsPDF
+            // e não necessariamente a um plugin.autotable diretamente no window.jspdf
+            // Mas podemos verificar se o método existe na classe jsPDF.
+            const { jsPDF } = window.jspdf;
+            if (typeof jsPDF.prototype.autoTable === 'undefined') {
+                console.error('Erro: jsPDF AutoTable plugin not loaded or correctly registered.');
+                alert('Erro ao gerar PDF: O plugin de tabelas não foi carregado corretamente. Isso pode ser um problema com o CDN ou a ordem de carregamento.');
                 return;
             }
 
             try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+                const doc = new jsPDF(); // Cria a instância do documento PDF
 
                 doc.setFontSize(22);
                 doc.setTextColor(44, 62, 80); // #2c3e50
@@ -655,7 +658,7 @@
 
                 doc.save('relatorio_financeiro.pdf');
             } catch (error) {
-                console.error("Erro ao gerar PDF:", error);
+                console.error("Erro inesperado ao gerar PDF:", error);
                 alert('Ocorreu um erro inesperado ao gerar o PDF. Verifique o console para mais detalhes.');
             }
         }
