@@ -26,7 +26,7 @@
         
         .financial-widget {
             background-color: #ffffff;
-            border-radius: px;
+            border-radius: 0px;
             box-shadow: 0 0px 0px rgba(0, 0, 0, 0.0);
             width: 100%;
             max-width: 1080px;
@@ -47,7 +47,7 @@
         
         h1 {
             color: #2c3e50;
-            font-size: 2.0em;
+            font-size: 1.8em; /* Tamanho reduzido */
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -65,6 +65,7 @@
             font-weight: 600;
             color: #555;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 0.9em; /* Tamanho reduzido */
         }
         
         .input-section {
@@ -88,11 +89,12 @@
             margin-bottom: 8px;
             color: #555;
             font-weight: 500;
+            font-size: 0.95em; /* Tamanho reduzido */
         }
         
         .input-group input {
             width: 100%;
-            padding: 15px;
+            padding: 14px; /* Padding reduzido */
             border: 1px solid #dfe6e9;
             border-radius: 8px;
             font-size: 1em;
@@ -114,10 +116,10 @@
         }
         
         .btn {
-            padding: 14px 30px;
+            padding: 14px 20px; /* Padding reduzido */
             border: none;
             border-radius: 8px;
-            font-size: 1.05em;
+            font-size: 0.95em; /* Tamanho reduzido */
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
@@ -162,7 +164,7 @@
             width: 100%;
             margin-top: 30px;
             padding: 16px;
-            font-size: 1.1em;
+            font-size: 1.0em; /* Tamanho reduzido */
             justify-content: center;
         }
         
@@ -195,7 +197,7 @@
         
         .summary-item h3 {
             color: #7f8c8d;
-            font-size: 1.0em;
+            font-size: 0.95em; /* Tamanho reduzido */
             margin-bottom: 10px;
         }
         
@@ -225,6 +227,16 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.1em; /* Tamanho reduzido conforme solicitado */
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         .data-section table {
             width: 100%;
             border-collapse: collapse;
@@ -236,6 +248,7 @@
             padding: 10px 10px;
             text-align: center;
             border-bottom: 1px solid #ecf0f1;
+            font-size: 0.9em; /* Tamanho reduzido */
         }
         
         .data-section th {
@@ -265,6 +278,7 @@
             padding: 5px 10px;
             border-radius: 20px;
             display: inline-block;
+            font-size: 0.9em; /* Tamanho reduzido */
         }
         
         .type-expense {
@@ -274,6 +288,7 @@
             padding: 5px 10px;
             border-radius: 20px;
             display: inline-block;
+            font-size: 0.9em; /* Tamanho reduzido */
         }
         
         .charts-section {
@@ -334,7 +349,7 @@
             text-align: center;
             margin-top: 30px;
             color: #7f8c8d;
-            font-size: 0.95em;
+            font-size: 0.9em; /* Tamanho reduzido */
             padding-top: 0px;
             border-top: 1px solid #eee;
             position: absolute;
@@ -345,6 +360,7 @@
             background-color: #ffffff;
         }
         
+        /* Melhorias para tabela em dispositivos móveis */
         @media (max-width: 768px) {
             .financial-widget {
                 padding: 10px;
@@ -354,39 +370,166 @@
             .header {
                 flex-direction: column;
                 gap: 15px;
+                text-align: center;
             }
             
             .input-section {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 15px;
+                gap: 15px;
             }
             
             .input-actions {
                 flex-direction: column;
                 justify-content: center;
                 align-items: stretch;
+                gap: 10px;
             }
             
             .btn {
                 width: 100%;
+                padding: 12px 15px;
+                font-size: 0.9em;
             }
             
             .summary-section {
                 flex-direction: column;
                 gap: 15px;
+                padding: 15px;
             }
             
             .summary-item {
                 min-width: 100%;
+                padding: 12px;
+            }
+            
+            .summary-item p {
+                font-size: 1.3em;
             }
             
             .charts-container {
                 flex-direction: column;
                 align-items: center;
+                gap: 15px;
             }
             
             .chart-container {
                 max-width: 100%;
+                height: 300px;
+                padding: 15px;
+            }
+            
+            .data-section {
+                padding: 15px;
+            }
+            
+            .section-title {
+                font-size: 1.0em; /* Tamanho reduzido em mobile */
+                justify-content: center;
+            }
+            
+            /* Melhorias específicas para a tabela em mobile */
+            .data-section table, 
+            .data-section thead, 
+            .data-section tbody, 
+            .data-section th, 
+            .data-section td, 
+            .data-section tr {
+                display: block;
+            }
+            
+            .data-section thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            .data-section tr {
+                border: 1px solid #ddd;
+                margin-bottom: 15px;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                position: relative;
+            }
+            
+            .data-section td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+                font-size: 0.85em;
+                padding: 10px 15px;
+            }
+            
+            .data-section td:last-child {
+                border-bottom: 0;
+            }
+            
+            .data-section td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #555;
+                font-size: 0.85em;
+            }
+            
+            /* Ajuste para botão de exclusão em mobile */
+            .btn-delete {
+                width: auto;
+                margin: 0 auto;
+                display: block;
+            }
+            
+            /* Ajuste para tipos de transação em mobile */
+            .type-income, .type-expense {
+                font-size: 0.8em;
+                padding: 4px 8px;
+            }
+        }
+        
+        /* Melhorias adicionais para telas muito pequenas */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .date-display {
+                font-size: 0.8em;
+                padding: 6px 15px;
+            }
+            
+            .input-group input {
+                padding: 12px;
+            }
+            
+            .summary-item h3 {
+                font-size: 0.9em;
+            }
+            
+            .summary-item p {
+                font-size: 1.2em;
+            }
+            
+            .data-section td {
+                font-size: 0.8em;
+                padding: 8px 15px 8px 50%;
+            }
+            
+            .data-section td::before {
+                font-size: 0.8em;
+            }
+            
+            .btn-image {
+                padding: 14px;
+                font-size: 0.95em;
             }
         }
     </style>
@@ -435,7 +578,7 @@
         </div>
 
         <div class="data-section">
-            <h2><i class="fas fa-list"></i> Detalhes das Transações</h2>
+            <div class="section-title"><i class="fas fa-list"></i> Detalhes das Transações</div>
             <table id="transactions-table">
                 <thead>
                     <tr>
@@ -451,7 +594,7 @@
         </div>
 
         <div class="charts-section">
-            <h2><i class="fas fa-chart-pie"></i> Gráficos de Finanças</h2>
+            <div class="section-title"><i class="fas fa-chart-pie"></i> Gráficos de Finanças</div>
             <div class="charts-container">
                 <div class="chart-container">
                     <div class="chart-header">
