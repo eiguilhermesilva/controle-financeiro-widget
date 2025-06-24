@@ -15,7 +15,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-start; /* Alinha ao topo para evitar sobrecarga em telas pequenas */
-            padding: 20px;
+            padding: 0px;
             min-height: 100vh;
             margin: 0;
             box-sizing: border-box;
@@ -23,19 +23,23 @@
 
         .financial-widget {
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 0px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
+            width: 100%; /* Por padrão, ocupa a largura total disponível */
+            max-width: 1080px; /* <-- AQUI VOCÊ CONTROLA A LARGURA MÁXIMA EM TELAS MAIORES (PC) */
+                               /* Para aumentar o widget no PC, aumente este valor (ex: 1000px, 1200px) */
+                               /* Lembre-se que o padding do widget também adiciona à largura total */
             padding: 30px;
             box-sizing: border-box;
+            position: relative; /* Necessário para o rodapé fixo dentro do widget */
+            padding-bottom: 60px; /* Espaço para o rodapé interno */
         }
 
         h1 {
             color: #2c3e50;
             text-align: center;
             margin-bottom: 30px;
-            font-size: 2.2em;
+            font-size: 2.0em;
             font-weight: 700;
         }
 
@@ -43,15 +47,15 @@
             color: #34495e;
             border-bottom: 2px solid #ecf0f1;
             padding-bottom: 10px;
-            margin-top: 30px;
+            margin-top: 10px;
             margin-bottom: 20px;
-            font-size: 1.6em;
-            font-weight: 600;
+            font-size: 1.0em;
+            font-weight: 500;
         }
 
         h3 {
             color: #7f8c8d;
-            font-size: 1.1em;
+            font-size: 1.0em;
             margin-bottom: 5px;
         }
 
@@ -104,7 +108,7 @@
             padding: 12px 25px;
             border: none;
             border-radius: 8px;
-            font-size: 1.05em;
+            font-size: 1.0em;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
             font-weight: 600;
@@ -140,13 +144,13 @@
             background-color: #95a5a6;
         }
 
-        .btn-image { /* Alterado de btn-pdf para btn-image */
+        .btn-image {
             background-color: #3498db; /* Azul */
             width: 100%;
             margin-top: 30px;
         }
 
-        .btn-image:hover { /* Alterado de btn-pdf para btn-image */
+        .btn-image:hover {
             background-color: #5dade2;
             transform: translateY(-2px);
         }
@@ -157,7 +161,7 @@
             background-color: #ecf0f1;
             padding: 20px;
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -169,21 +173,21 @@
         }
 
         .summary-item p {
-            font-size: 1.8em;
+            font-size: 1.4em;
             font-weight: 700;
             margin: 5px 0 0;
         }
 
         #total-income {
-            color: #27ae60; /* Verde */
+            color: #27ae60;
         }
 
         #total-expense {
-            color: #e74c3c; /* Vermelho */
+            color: #e74c3c;
         }
 
         #current-balance {
-            color: #3498db; /* Azul */
+            color: #3498db;
         }
 
         .data-section table {
@@ -195,7 +199,7 @@
         .data-section th,
         .data-section td {
             padding: 12px 15px;
-            text-align: left;
+            text-align: center;
             border-bottom: 1px solid #ecf0f1;
         }
 
@@ -204,7 +208,7 @@
             color: #555;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.9em;
+            font-size: 0.8em;
         }
 
         .data-section td {
@@ -230,21 +234,39 @@
         }
 
         .charts-section {
-            margin-top: 40px;
+            margin-top: 20px;
             padding: 20px 0;
-            background-color: #fcfcfc;
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.0);
         }
 
         .chart-container {
-            width: 80%; /* Ajuste a largura do container do gráfico */
-            max-width: 500px; /* Limite a largura máxima para manter a proporção */
+            width: 100%; /* Ajuste a largura do container do gráfico */
+            max-width: 600px; /* Limite a largura máxima para manter a proporção */
             margin: 0 auto;
             background-color: white;
-            padding: 15px;
+            padding: 0px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 0px 10px rgba(0, 0, 0, 0.0);
+        }
+
+        /* --- Rodapé --- */
+        .widget-footer {
+            text-align: center;
+            margin-top: 20px; /* Espaçamento acima do rodapé */
+            color: #7f8c8d; /* Cor mais suave */
+            font-size: 0.85em; /* Fonte pequena */
+            padding-top: 20px; /* Espaçamento interno superior */
+            border-top: 1px solid #eee; /* Linha divisória */
+            position: absolute; /* Para fixar no final do widget */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding-bottom: 15px;
+            background-color: #ffffff; /* Fundo para garantir que não apareça por trás de outros elementos */
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
         }
 
         /* --- MEDIA QUERIES PARA RESPONSIVIDADE --- */
@@ -252,6 +274,7 @@
         @media (max-width: 768px) {
             .financial-widget {
                 padding: 20px;
+                padding-bottom: 20px; /* Mantém espaço para o rodapé */
             }
             .input-section {
                 flex-direction: column;
@@ -319,7 +342,13 @@
             }
             .chart-container {
                 width: 100%;
-                padding: 10px;
+                padding: 0px;
+            }
+
+            .widget-footer {
+                margin-top: 15px; /* Ajuste a margem superior em telas pequenas */
+                position: relative; /* Pode ser melhor para que não fique por cima em alguns casos */
+                padding-bottom: 10px;
             }
         }
 
@@ -337,7 +366,8 @@
     </style>
 </head>
 <body>
-    <div class="financial-widget" id="financial-widget-content"> <h1>Controle Financeiro Pessoal</h1>
+    <div class="financial-widget" id="financial-widget-content">
+        <h1>Controle Financeiro Pessoal</h1>
 
         <div class="input-section">
             <div class="input-group">
@@ -394,6 +424,10 @@
 
         <div class="image-section">
             <button id="generate-image" class="btn btn-image">Gerar Imagem do Relatório</button>
+        </div>
+
+        <div class="widget-footer">
+            Todos os direitos reservados - Guilherme S. Vanderley © 2025
         </div>
     </div>
 
@@ -504,14 +538,17 @@
             transactions.forEach(transaction => {
                 const row = transactionsTableBody.insertRow();
                 // Adiciona o atributo data-label para uso no CSS responsivo
-                row.insertCell().innerHTML = `<span class="${transaction.type === 'income' ? 'type-income' : 'type-expense'}">${transaction.type === 'income' ? 'Renda' : 'Despesa'}</span>`;
-                row.cells[0].setAttribute('data-label', 'Tipo');
+                const typeCell = row.insertCell();
+                typeCell.innerHTML = `<span class="${transaction.type === 'income' ? 'type-income' : 'type-expense'}">${transaction.type === 'income' ? 'Renda' : 'Despesa'}</span>`;
+                typeCell.setAttribute('data-label', 'Tipo');
 
-                row.insertCell().textContent = transaction.description;
-                row.cells[1].setAttribute('data-label', 'Descrição');
+                const descriptionCell = row.insertCell();
+                descriptionCell.textContent = transaction.description;
+                descriptionCell.setAttribute('data-label', 'Descrição');
 
-                row.insertCell().textContent = formatCurrency(Math.abs(transaction.value));
-                row.cells[2].setAttribute('data-label', 'Valor');
+                const valueCell = row.insertCell();
+                valueCell.textContent = formatCurrency(Math.abs(transaction.value));
+                valueCell.setAttribute('data-label', 'Valor');
 
                 const actionsCell = row.insertCell();
                 actionsCell.setAttribute('data-label', 'Ações');
