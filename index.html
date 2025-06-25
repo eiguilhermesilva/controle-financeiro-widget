@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro Completo</title>
+    <title>Controle Financeiro Completo - Corrigido</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -431,6 +431,18 @@
             justify-content: center;
         }
         
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .input-group.error input,
+        .input-group.error select {
+            border-color: #e74c3c;
+        }
+        
         /* Melhorias para tabela em dispositivos móveis */
         @media (max-width: 768px) {
             body {
@@ -679,6 +691,7 @@
                     <option value="" disabled selected>Selecione uma categoria</option>
                     <!-- As categorias serão preenchidas via JavaScript -->
                 </select>
+                <div class="error-message" id="category-error">Selecione uma categoria válida para este tipo de transação</div>
             </div>
             <div class="input-actions">
                 <button id="add-income" class="btn btn-income">
@@ -780,6 +793,7 @@
         const updateBtn = document.getElementById('update-transaction');
         const cancelBtn = document.getElementById('cancel-edit');
         const editModeSection = document.getElementById('edit-mode-section');
+        const categoryError = document.getElementById('category-error');
         
         // Atualizar data atual
         const now = new Date();
@@ -794,21 +808,35 @@
         const incomeCategories = ["Salário", "Freelance", "Investimentos", "Presente", "Outros"];
         const expenseCategories = ["Moradia", "Alimentação", "Transporte", "Lazer", "Saúde", "Educação", "Outros"];
         
-        // Preencher o select de categorias
-        function populateCategories(type) {
+        // Preencher o select de categorias com grupos
+        function populateCategories() {
             categoryInput.innerHTML = '<option value="" disabled selected>Selecione uma categoria</option>';
-            const categories = type === 'income' ? incomeCategories : expenseCategories;
             
-            categories.forEach(category => {
+            // Grupo de Renda
+            const incomeGroup = document.createElement('optgroup');
+            incomeGroup.label = 'Renda';
+            incomeCategories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
                 option.textContent = category;
-                categoryInput.appendChild(option);
+                incomeGroup.appendChild(option);
             });
+            categoryInput.appendChild(incomeGroup);
+            
+            // Grupo de Despesas
+            const expenseGroup = document.createElement('optgroup');
+            expenseGroup.label = 'Despesas';
+            expenseCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                expenseGroup.appendChild(option);
+            });
+            categoryInput.appendChild(expenseGroup);
         }
         
-        // Inicialmente preencher com categorias de despesa
-        populateCategories('expense');
+        // Inicialmente preencher com todas as categorias
+        populateCategories();
 
         // Variáveis globais para armazenar os dados
         let transactions = [];
@@ -816,6 +844,7 @@
         let summaryChart;
         let isEditMode = false;
         let currentEditId = null;
+        let currentTransactionType = null;
 
         // --- Funções Principais ---
 
@@ -833,14 +862,51 @@
             localStorage.setItem('financialTransactions', JSON.stringify(transactions));
         }
 
+        // Valida se a categoria é compatível com o tipo de transação
+        function validateCategory(type, category) {
+            if (type === 'income') {
+                return incomeCategories.includes(category);
+            } else {
+                return expenseCategories.includes(category);
+            }
+        }
+
+        // Mostra mensagem de erro na categoria
+        function showCategoryError(message) {
+            categoryError.textContent = message;
+            categoryError.style.display = 'block';
+            categoryInput.parentElement.classList.add('error');
+        }
+
+        // Esconde a mensagem de erro na categoria
+        function hideCategoryError() {
+            categoryError.style.display = 'none';
+            categoryInput.parentElement.classList.remove('error');
+        }
+
         // Adiciona uma nova transação
         function addTransaction(type) {
             const description = descriptionInput.value.trim();
             const value = parseFloat(valueInput.value);
             const category = categoryInput.value;
+            
+            // Resetar mensagens de erro
+            hideCategoryError();
 
             if (!description || isNaN(value) || value <= 0 || !category) {
                 alert('Por favor, preencha todos os campos com valores válidos.');
+                return;
+            }
+            
+            // Validar categoria compatível com o tipo
+            if (!validateCategory(type, category)) {
+                let message = '';
+                if (type === 'income') {
+                    message = 'Selecione uma categoria de renda válida';
+                } else {
+                    message = 'Selecione uma categoria de despesa válida';
+                }
+                showCategoryError(message);
                 return;
             }
 
@@ -863,9 +929,24 @@
             const description = descriptionInput.value.trim();
             const value = parseFloat(valueInput.value);
             const category = categoryInput.value;
+            
+            // Resetar mensagens de erro
+            hideCategoryError();
 
             if (!description || isNaN(value) || value <= 0 || !category) {
                 alert('Por favor, preencha todos os campos com valores válidos.');
+                return;
+            }
+            
+            // Validar categoria compatível com o tipo
+            if (!validateCategory(currentTransactionType, category)) {
+                let message = '';
+                if (currentTransactionType === 'income') {
+                    message = 'Selecione uma categoria de renda válida';
+                } else {
+                    message = 'Selecione uma categoria de despesa válida';
+                }
+                showCategoryError(message);
                 return;
             }
 
@@ -874,7 +955,7 @@
             
             if (index !== -1) {
                 transactions[index].description = description;
-                transactions[index].value = transactions[index].type === 'expense' ? -value : value;
+                transactions[index].value = currentTransactionType === 'expense' ? -value : value;
                 transactions[index].category = category;
                 
                 saveTransactions();
@@ -899,11 +980,11 @@
             if (transaction) {
                 isEditMode = true;
                 currentEditId = id;
+                currentTransactionType = transaction.type;
                 
                 // Preencher os campos com os dados da transação
                 descriptionInput.value = transaction.description;
                 valueInput.value = Math.abs(transaction.value);
-                populateCategories(transaction.type);
                 categoryInput.value = transaction.category;
                 
                 // Mostrar botões de atualização/cancelamento
@@ -918,9 +999,10 @@
         function cancelEditMode() {
             isEditMode = false;
             currentEditId = null;
+            currentTransactionType = null;
             editModeSection.style.display = 'none';
             clearInputs();
-            populateCategories('expense');
+            hideCategoryError();
         }
 
         // Atualiza a interface do usuário (tabela, resumos e gráficos)
@@ -1192,6 +1274,7 @@
             valueInput.value = '';
             categoryInput.value = '';
             descriptionInput.focus();
+            hideCategoryError();
         }
 
         // Formata o valor para moeda brasileira
@@ -1228,18 +1311,19 @@
 
         // --- Event Listeners ---
         addIncomeBtn.addEventListener('click', () => {
-            populateCategories('income');
             addTransaction('income');
         });
         
         addExpenseBtn.addEventListener('click', () => {
-            populateCategories('expense');
             addTransaction('expense');
         });
         
         generateImageBtn.addEventListener('click', generateImage);
         updateBtn.addEventListener('click', updateTransaction);
         cancelBtn.addEventListener('click', cancelEditMode);
+        
+        // Ao mudar a categoria, esconder qualquer erro
+        categoryInput.addEventListener('change', hideCategoryError);
 
         // Adicionar transações de exemplo
         function addSampleData() {
