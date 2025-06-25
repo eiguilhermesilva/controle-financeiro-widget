@@ -155,8 +155,8 @@
         .btn-edit {
             background: linear-gradient(to right, #3498db, #5dade2);
             color: white;
-            padding: 8px 10px;
-            font-size: 1.0em;
+            padding: 8px 15px;
+            font-size: 0.9em;
         }
         
         .btn-edit:hover {
@@ -166,8 +166,8 @@
         .btn-delete {
             background: linear-gradient(to right, #e74c3c, #ff6b6b);
             color: white;
-            padding: 8px 10px;
-            font-size: 1.0em;
+            padding: 8px 15px;
+            font-size: 0.9em;
         }
         
         .btn-delete:hover {
@@ -425,6 +425,12 @@
             margin-top: 15px;
         }
         
+        .action-cell {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
         /* Melhorias para tabela em dispositivos móveis */
         @media (max-width: 768px) {
             body {
@@ -502,6 +508,11 @@
                 flex-direction: column;
             }
             
+            .btn-edit, .btn-delete {
+                padding: 8px 10px;
+                font-size: 0.85em;
+            }
+            
             /* Melhorias específicas para a tabela em mobile */
             .data-section table, 
             .data-section thead, 
@@ -539,6 +550,7 @@
             
             .data-section td:last-child {
                 border-bottom: 0;
+                text-align: center;
             }
             
             .data-section td::before {
@@ -554,10 +566,15 @@
                 font-size: 0.85em;
             }
             
+            .action-cell {
+                justify-content: flex-end;
+                padding-right: 10px;
+            }
+            
             /* Ajuste para botões de ação em mobile */
-            .action-buttons td {
+            .action-cell {
                 display: flex;
-                justify-content: center;
+                justify-content: flex-end;
                 gap: 5px;
             }
             
@@ -608,6 +625,14 @@
             .btn-image {
                 padding: 14px;
                 font-size: 0.95em;
+            }
+            
+            .btn-edit span, .btn-delete span {
+                display: none;
+            }
+            
+            .btn-edit, .btn-delete {
+                padding: 8px 12px;
             }
         }
     </style>
@@ -947,17 +972,16 @@
                 // Ações
                 const actionsCell = row.insertCell();
                 actionsCell.setAttribute('data-label', 'Ações');
+                actionsCell.className = 'action-cell';
                 
                 const editBtn = document.createElement('button');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i> <span>Editar</span>';
                 editBtn.classList.add('btn', 'btn-edit');
-                editBtn.title = 'Editar';
                 editBtn.onclick = () => activateEditMode(transaction.id);
                 
                 const deleteBtn = document.createElement('button');
-                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> <span>Excluir</span>';
                 deleteBtn.classList.add('btn', 'btn-delete');
-                deleteBtn.title = 'Excluir';
                 deleteBtn.onclick = () => deleteTransaction(transaction.id);
                 
                 actionsCell.appendChild(editBtn);
