@@ -20,17 +20,17 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 0px;
+            padding: 20px;
             min-height: 100vh;
         }
         
         .financial-widget {
             background-color: #ffffff;
-            border-radius: px;
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 1080px;
-            padding: 20px;
+            padding: 25px;
             position: relative;
             padding-bottom: 70px;
             overflow: hidden;
@@ -551,6 +551,7 @@
             .data-section td:last-child {
                 border-bottom: 0;
                 text-align: center;
+                padding-left: 10px; /* Removemos o padding grande à esquerda */
             }
             
             .data-section td::before {
@@ -566,16 +567,30 @@
                 font-size: 0.85em;
             }
             
-            .action-cell {
-                justify-content: flex-end;
-                padding-right: 10px;
+            /* Remover o label "Ações" apenas para a célula de ações */
+            .data-section td[data-label="Ações"]::before {
+                display: none;
             }
             
             /* Ajuste para botões de ação em mobile */
             .action-cell {
                 display: flex;
-                justify-content: flex-end;
-                gap: 5px;
+                justify-content: center;
+                gap: 10px;
+                padding: 10px 0;
+            }
+            
+            /* Centralizar e organizar os botões */
+            .action-cell .btn {
+                width: auto;
+                padding: 8px 15px;
+                font-size: 0.9em;
+                display: inline-flex;
+            }
+            
+            /* Esconder o texto dos botões em mobile */
+            .action-cell .btn span {
+                display: none;
             }
             
             /* Ajuste para tipos de transação em mobile */
@@ -627,12 +642,15 @@
                 font-size: 0.95em;
             }
             
-            .btn-edit span, .btn-delete span {
-                display: none;
+            /* Botões de ação em telas muito pequenas */
+            .action-cell .btn {
+                padding: 8px 12px;
+                font-size: 0.8em;
             }
             
-            .btn-edit, .btn-delete {
-                padding: 8px 12px;
+            /* Ícones um pouco menores em telas muito pequenas */
+            .action-cell .btn i {
+                font-size: 0.9em;
             }
         }
     </style>
