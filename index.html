@@ -268,15 +268,15 @@
         }
         
         #current-balance {
-            color: #3498db;
+            color: #3498db; /* Cor azul para o saldo */
         }
         
         #total-paid {
-            color: #27ae60;
+            color: #2c3e50; /* Cor escura para total pago */
         }
         
         #total-pending {
-            color: #e74c3c;
+            color: #2c3e50; /* Cor escura para total pendente */
         }
         
         .data-section {
@@ -305,7 +305,7 @@
         
         .data-section th,
         .data-section td {
-            padding: 10px 10px;
+            padding: 12px 10px;
             text-align: center;
             border-bottom: 1px solid #ecf0f1;
             font-size: 0.9em;
@@ -314,7 +314,7 @@
         .data-section th {
             background-color: #2c3e50;
             color: white;
-            font-weight: 400;
+            font-weight: 500;
             text-transform: uppercase;
             font-size: 0.80em;
         }
@@ -324,7 +324,7 @@
         }
         
         .data-section tbody tr:nth-child(even) {
-            background-color: #fdfdfd;
+            background-color: #f8f9fa;
         }
         
         .data-section tbody tr:hover {
@@ -622,7 +622,7 @@
             .data-section td:last-child {
                 border-bottom: 0;
                 text-align: center;
-                padding-left: 10px; /* Removemos o padding grande à esquerda */
+                padding-left: 10px;
             }
             
             .data-section td::before {
@@ -638,8 +638,8 @@
                 font-size: 0.85em;
             }
             
-            /* Remover o label "Ações" apenas para a célula de ações */
-            .data-section td[data-label="Ações"]::before {
+            /* Remover o label "Paga?" para rendas */
+            .data-section td[data-label="Paga?"][data-is-income="true"]::before {
                 display: none;
             }
             
@@ -1137,13 +1137,6 @@
             currentBalanceElem.textContent = formatCurrency(currentBalance);
             totalPaidElem.textContent = formatCurrency(totalPaid);
             totalPendingElem.textContent = formatCurrency(totalPending);
-
-            // Ajusta a cor do saldo com base no valor
-            if (currentBalance >= 0) {
-                currentBalanceElem.style.color = '#27ae60';
-            } else {
-                currentBalanceElem.style.color = '#e74c3c';
-            }
         }
 
         // Renderiza as transações na tabela
@@ -1178,9 +1171,10 @@
 
                 // Paga? (apenas para despesas)
                 const paidCell = row.insertCell();
-                paidCell.setAttribute('data-label', 'Paga?');
-                
                 if (transaction.type === 'expense') {
+                    paidCell.setAttribute('data-label', 'Paga?');
+                    paidCell.setAttribute('data-is-income', 'false');
+                    
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.checked = transaction.paga || false;
@@ -1191,6 +1185,8 @@
                     });
                     paidCell.appendChild(checkbox);
                 } else {
+                    paidCell.setAttribute('data-label', 'Paga?');
+                    paidCell.setAttribute('data-is-income', 'true');
                     paidCell.textContent = '-';
                 }
 
@@ -1536,21 +1532,30 @@
                 const pageHeight = pdf.internal.pageSize.getHeight();
                 let yPos = margin;
                 
-                // Adicionar título
+                // Adicionar título com fundo colorido
+                pdf.setFillColor(44, 62, 80); // Cor de fundo: #2c3e50
+                pdf.rect(0, 0, pageWidth, 30, 'F');
+                
                 pdf.setFontSize(20);
                 pdf.setFont('helvetica', 'bold');
-                pdf.text('Relatório Financeiro', pageWidth / 2, yPos, { align: 'center' });
-                yPos += 15;
+                pdf.setTextColor(255, 255, 255); // Texto branco
+                pdf.text('Relatório Financeiro', pageWidth / 2, 20, { align: 'center' });
+                yPos = 35;
                 
                 // Adicionar data
                 pdf.setFontSize(12);
                 pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(100, 100, 100); // Texto cinza
                 pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, yPos, { align: 'center' });
-                yPos += 20;
+                yPos += 15;
                 
-                // Adicionar resumo
+                // Adicionar resumo com fundo
+                pdf.setFillColor(245, 247, 250); // Cor de fundo clara
+                pdf.rect(margin - 5, yPos - 5, pageWidth - margin*2 + 10, 100, 'F');
+                
                 pdf.setFontSize(16);
                 pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(44, 62, 80); // Texto escuro
                 pdf.text('Resumo Financeiro', margin, yPos);
                 yPos += 10;
                 
@@ -1576,19 +1581,21 @@
                 });
                 
                 const currentBalance = totalIncome - totalExpense;
+                const expensePercent = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
+                const balancePercent = totalIncome > 0 ? (currentBalance / totalIncome) * 100 : 0;
                 
                 // Adicionar valores
                 pdf.setFontSize(12);
                 pdf.setFont('helvetica', 'normal');
                 pdf.text(`Renda Total: ${formatCurrency(totalIncome)}`, margin, yPos);
                 yPos += 8;
-                pdf.text(`Despesa Total: ${formatCurrency(totalExpense)}`, margin, yPos);
+                pdf.text(`Despesa Total: ${formatCurrency(totalExpense)} (${expensePercent.toFixed(1)}%)`, margin, yPos);
                 yPos += 8;
                 pdf.text(`Total Pago: ${formatCurrency(totalPaid)}`, margin, yPos);
                 yPos += 8;
                 pdf.text(`Total Pendente: ${formatCurrency(totalPending)}`, margin, yPos);
                 yPos += 8;
-                pdf.text(`Saldo Atual: ${formatCurrency(currentBalance)}`, margin, yPos);
+                pdf.text(`Saldo Atual: ${formatCurrency(currentBalance)} (${balancePercent.toFixed(1)}%)`, margin, yPos);
                 yPos += 15;
                 
                 // Adicionar transações
@@ -1600,49 +1607,58 @@
                 // Cabeçalho da tabela
                 pdf.setFontSize(12);
                 pdf.setFont('helvetica', 'bold');
+                pdf.setFillColor(44, 62, 80); // Cor de fundo escura
                 
                 // Posições ajustadas para caber no A4
-                const col1 = margin;          // Tipo (15mm)
-                const col2 = margin + 18;      // Descrição (65mm)
-                const col3 = margin + 83;      // Categoria (30mm)
-                const col4 = margin + 113;     // Valor (30mm)
-                const col5 = margin + 143;     // Paga? (20mm)
+                const col1 = margin;          // Tipo (20mm)
+                const col2 = margin + 22;      // Descrição (70mm)
+                const col3 = margin + 92;      // Categoria (30mm)
+                const col4 = margin + 122;     // Valor (30mm)
+                const col5 = margin + 152;     // Paga? (20mm)
                 
-                pdf.text('Tipo', col1, yPos);
-                pdf.text('Descrição', col2, yPos);
-                pdf.text('Categoria', col3, yPos);
-                pdf.text('Valor', col4, yPos);
-                pdf.text('Paga?', col5, yPos);
-                yPos += 8;
+                // Desenhar fundo do cabeçalho
+                pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, 10, 'F');
                 
-                // Linha divisória
-                pdf.setLineWidth(0.2);
-                pdf.line(margin, yPos, pageWidth - margin, yPos);
-                yPos += 10;
+                pdf.setTextColor(255, 255, 255); // Texto branco
+                pdf.text('Tipo', col1, yPos + 6);
+                pdf.text('Descrição', col2, yPos + 6);
+                pdf.text('Categoria', col3, yPos + 6);
+                pdf.text('Valor', col4, yPos + 6);
+                pdf.text('Paga?', col5, yPos + 6);
+                yPos += 12;
                 
                 // Adicionar transações
                 pdf.setFontSize(10);
                 pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(0, 0, 0); // Texto preto
                 
                 // Ordenar transações por data (mais recentes primeiro)
                 const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
                 
+                let rowCount = 0;
+                
                 sortedTransactions.forEach(transaction => {
                     // Verificar se precisa de nova página
-                    if (yPos > pageHeight - 20) {
+                    if (yPos > pageHeight - 30) {
                         pdf.addPage();
                         yPos = margin;
+                        
                         // Adicionar cabeçalho novamente na nova página
                         pdf.setFontSize(12);
                         pdf.setFont('helvetica', 'bold');
-                        pdf.text('Tipo', col1, yPos);
-                        pdf.text('Descrição', col2, yPos);
-                        pdf.text('Categoria', col3, yPos);
-                        pdf.text('Valor', col4, yPos);
-                        pdf.text('Paga?', col5, yPos);
-                        yPos += 18; // Pular linha do cabeçalho + margem
+                        pdf.setFillColor(44, 62, 80);
+                        pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, 10, 'F');
+                        pdf.setTextColor(255, 255, 255);
+                        pdf.text('Tipo', col1, yPos + 6);
+                        pdf.text('Descrição', col2, yPos + 6);
+                        pdf.text('Categoria', col3, yPos + 6);
+                        pdf.text('Valor', col4, yPos + 6);
+                        pdf.text('Paga?', col5, yPos + 6);
+                        yPos += 12;
                         pdf.setFontSize(10);
                         pdf.setFont('helvetica', 'normal');
+                        pdf.setTextColor(0, 0, 0);
+                        rowCount = 0;
                     }
                     
                     const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
@@ -1652,16 +1668,26 @@
                     // Apenas despesas têm informação de pagamento
                     const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
                     
+                    // Alternar cores de fundo
+                    if (rowCount % 2 === 0) {
+                        pdf.setFillColor(248, 249, 250); // Fundo claro
+                    } else {
+                        pdf.setFillColor(255, 255, 255); // Fundo branco
+                    }
+                    
                     // Quebrar descrição longa em múltiplas linhas
-                    const maxDescWidth = 65; // Largura máxima da descrição em mm
+                    const maxDescWidth = 70; // Largura máxima da descrição em mm
                     const descLines = pdf.splitTextToSize(description, maxDescWidth);
                     
                     // Calcular altura necessária para esta linha
                     const lineHeight = 8;
-                    const cellHeight = Math.max(lineHeight, descLines.length * lineHeight);
+                    const cellHeight = Math.max(10, descLines.length * lineHeight);
+                    
+                    // Desenhar fundo da linha
+                    pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, cellHeight, 'F');
                     
                     // Escrever tipo
-                    pdf.text(type, col1, yPos + (cellHeight/2 - 2));
+                    pdf.text(type, col1, yPos + (cellHeight/2) - 2);
                     
                     // Escrever descrição (com quebra de linha)
                     let descY = yPos;
@@ -1671,20 +1697,21 @@
                     }
                     
                     // Escrever categoria
-                    pdf.text(category, col3, yPos + (cellHeight/2 - 2));
+                    pdf.text(category, col3, yPos + (cellHeight/2) - 2);
                     
                     // Escrever valor
-                    pdf.text(value, col4, yPos + (cellHeight/2 - 2));
+                    pdf.text(value, col4, yPos + (cellHeight/2) - 2);
                     
                     // Escrever status de pagamento
-                    pdf.text(paid, col5, yPos + (cellHeight/2 - 2));
+                    pdf.text(paid, col5, yPos + (cellHeight/2) - 2);
                     
-                    // Desenhar linha horizontal para separar as linhas
+                    // Linha divisória
                     pdf.setDrawColor(200, 200, 200);
-                    pdf.setLineWidth(0.1);
+                    pdf.setLineWidth(0.2);
                     pdf.line(margin, yPos + cellHeight, pageWidth - margin, yPos + cellHeight);
                     
-                    yPos += cellHeight;
+                    yPos += cellHeight + 2;
+                    rowCount++;
                 });
                 
                 // Salvar o PDF
