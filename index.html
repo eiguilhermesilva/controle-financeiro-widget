@@ -1680,29 +1680,28 @@
                     const descLines = pdf.splitTextToSize(description, maxDescWidth);
                     
                     // Calcular altura necessária para esta linha
-                    const lineHeight = 8;
+                    const lineHeight = 4;
                     const cellHeight = Math.max(10, descLines.length * lineHeight);
                     
                     // Desenhar fundo da linha
                     pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, cellHeight, 'F');
                     
-                    // Escrever tipo
+                    // Escrever tipo (centralizado verticalmente)
                     pdf.text(type, col1, yPos + (cellHeight/2) - 2);
                     
-                    // Escrever descrição (com quebra de linha)
-                    let descY = yPos;
+                    // Escrever descrição (com quebra de linha e centralizada verticalmente)
+                    const descStartY = yPos + (cellHeight - (descLines.length * lineHeight)) / 2;
                     for (let i = 0; i < descLines.length; i++) {
-                        pdf.text(descLines[i], col2, descY);
-                        descY += lineHeight;
+                        pdf.text(descLines[i], col2, descStartY + (i * lineHeight));
                     }
                     
-                    // Escrever categoria
+                    // Escrever categoria (centralizada verticalmente)
                     pdf.text(category, col3, yPos + (cellHeight/2) - 2);
                     
-                    // Escrever valor
+                    // Escrever valor (centralizado verticalmente)
                     pdf.text(value, col4, yPos + (cellHeight/2) - 2);
                     
-                    // Escrever status de pagamento
+                    // Escrever status de pagamento (centralizado verticalmente)
                     pdf.text(paid, col5, yPos + (cellHeight/2) - 2);
                     
                     // Linha divisória
