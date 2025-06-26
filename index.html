@@ -469,6 +469,31 @@
             margin-top: 20px;
         }
         
+        .export-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: #2ecc71;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
+        }
+        
+        @keyframes slideIn {
+            from { right: -300px; opacity: 0; }
+            to { right: 20px; opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
         /* Melhorias para tabela em dispositivos móveis */
         @media (max-width: 768px) {
             body {
@@ -698,6 +723,10 @@
     </style>
 </head>
 <body>
+    <div class="export-notification" id="export-notification">
+        <i class="fas fa-check-circle"></i> Arquivo exportado com sucesso!
+    </div>
+    
     <div class="financial-widget" id="financial-widget-content">
         <div class="header">
             <h1><i class="fas fa-chart-line"></i> Controle Financeiro Pessoal</h1>
@@ -832,6 +861,7 @@
         const cancelBtn = document.getElementById('cancel-edit');
         const editModeSection = document.getElementById('edit-mode-section');
         const categoryError = document.getElementById('category-error');
+        const exportNotification = document.getElementById('export-notification');
         
         // Atualizar data atual
         const now = new Date();
@@ -1349,13 +1379,15 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                
+                showExportNotification();
             } catch (error) {
                 console.error("Erro ao gerar imagem:", error);
                 alert('Ocorreu um erro ao gerar a imagem. Tente novamente.');
             }
         }
         
-        // Exportar para CSV
+        // Exportar para CSV com organização correta
         function exportToCSV() {
             // Verificar se existem transações
             if (transactions.length === 0) {
@@ -1363,20 +1395,45 @@
                 return;
             }
             
-            // Cabeçalho do CSV
-            let csvContent = "Tipo,Descrição,Categoria,Valor\n";
+            // Cabeçalho do CSV com colunas organizadas
+            let csvContent = "Tipo;Descrição;Categoria;Valor\n";
+            
+            // Ordenar transações por data (mais recentes primeiro)
+            const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
             
             // Adicionar cada transação
-            transactions.forEach(transaction => {
+            sortedTransactions.forEach(transaction => {
                 const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
-                const description = transaction.description;
+                // Remover quebras de linha e ponto-e-vírgula para evitar problemas
+                const description = transaction.description.replace(/[\n;]/g, ' '); 
                 const category = transaction.category;
                 const value = formatCurrencyForCSV(Math.abs(transaction.value));
-                csvContent += `${type},${description},${category},${value}\n`;
+                
+                // Adicionar linha ao CSV usando ponto-e-vírgula como separador
+                csvContent += `${type};"${description}";${category};${value}\n`;
             });
             
+            // Adicionar resumo financeiro
+            let totalIncome = 0;
+            let totalExpense = 0;
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncome += transaction.value;
+                } else {
+                    totalExpense += Math.abs(transaction.value);
+                }
+            });
+            const currentBalance = totalIncome - totalExpense;
+            
+            csvContent += "\n;;;;\n";
+            csvContent += `;;;;\n`;
+            csvContent += `Resumo Financeiro;;;;\n`;
+            csvContent += `Renda Total;;;${formatCurrencyForCSV(totalIncome)}\n`;
+            csvContent += `Despesa Total;;;${formatCurrencyForCSV(totalExpense)}\n`;
+            csvContent += `Saldo Atual;;;${formatCurrencyForCSV(currentBalance)}\n`;
+            
             // Criar link de download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
@@ -1385,9 +1442,11 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            showExportNotification();
         }
         
-        // Exportar para PDF
+        // Exportar para PDF com organização profissional
         async function exportToPDF() {
             try {
                 // Verificar se existem transações
@@ -1470,7 +1529,10 @@
                 pdf.setFontSize(10);
                 pdf.setFont('helvetica', 'normal');
                 
-                transactions.forEach(transaction => {
+                // Ordenar transações por data (mais recentes primeiro)
+                const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
+                
+                sortedTransactions.forEach(transaction => {
                     // Verificar se precisa de nova página
                     if (yPos > pageHeight - 20) {
                         pdf.addPage();
@@ -1492,10 +1554,20 @@
                 
                 // Salvar o PDF
                 pdf.save('relatorio_financeiro.pdf');
+                
+                showExportNotification();
             } catch (error) {
                 console.error("Erro ao gerar PDF:", error);
                 alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
             }
+        }
+        
+        // Mostrar notificação de exportação
+        function showExportNotification() {
+            exportNotification.style.display = 'block';
+            setTimeout(() => {
+                exportNotification.style.display = 'none';
+            }, 3000);
         }
 
         // --- Event Listeners ---
