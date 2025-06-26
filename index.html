@@ -271,6 +271,14 @@
             color: #3498db;
         }
         
+        #total-paid {
+            color: #27ae60;
+        }
+        
+        #total-pending {
+            color: #e74c3c;
+        }
+        
         .data-section {
             background: #f8f9fa;
             padding: 20px;
@@ -785,6 +793,14 @@
                 <h3><i class="fas fa-balance-scale"></i> Saldo Atual:</h3>
                 <p id="current-balance">R$ 0.00</p>
             </div>
+            <div class="summary-item">
+                <h3><i class="fas fa-check-circle"></i> Total Pago:</h3>
+                <p id="total-paid">R$ 0.00</p>
+            </div>
+            <div class="summary-item">
+                <h3><i class="fas fa-clock"></i> Total Pendente:</h3>
+                <p id="total-pending">R$ 0.00</p>
+            </div>
         </div>
 
         <div class="data-section">
@@ -796,6 +812,7 @@
                         <th>Descrição</th>
                         <th>Categoria</th>
                         <th>Valor</th>
+                        <th>Paga?</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -849,6 +866,8 @@
         const totalIncomeElem = document.getElementById('total-income');
         const totalExpenseElem = document.getElementById('total-expense');
         const currentBalanceElem = document.getElementById('current-balance');
+        const totalPaidElem = document.getElementById('total-paid');
+        const totalPendingElem = document.getElementById('total-pending');
         const transactionsTableBody = document.querySelector('#transactions-table tbody');
         const generateImageBtn = document.getElementById('generate-image');
         const exportCsvBtn = document.getElementById('export-csv');
@@ -921,6 +940,13 @@
             const storedTransactions = localStorage.getItem('financialTransactions');
             if (storedTransactions) {
                 transactions = JSON.parse(storedTransactions);
+                
+                // Inicializar propriedade 'paga' para transações antigas
+                transactions.forEach(transaction => {
+                    if (transaction.type === 'expense' && transaction.paga === undefined) {
+                        transaction.paga = false;
+                    }
+                });
             }
             updateUI();
         }
@@ -983,7 +1009,9 @@
                 description,
                 category,
                 value: type === 'expense' ? -value : value,
-                type
+                type,
+                // Para despesas, inicializar como não paga
+                ...(type === 'expense' && { paga: false })
             };
 
             transactions.push(transaction);
@@ -1084,12 +1112,21 @@
         function updateSummary() {
             let totalIncome = 0;
             let totalExpense = 0;
+            let totalPaid = 0;
+            let totalPending = 0;
 
             transactions.forEach(transaction => {
                 if (transaction.type === 'income') {
                     totalIncome += transaction.value;
                 } else {
-                    totalExpense += Math.abs(transaction.value);
+                    const expenseValue = Math.abs(transaction.value);
+                    totalExpense += expenseValue;
+                    
+                    if (transaction.paga) {
+                        totalPaid += expenseValue;
+                    } else {
+                        totalPending += expenseValue;
+                    }
                 }
             });
 
@@ -1098,6 +1135,8 @@
             totalIncomeElem.textContent = formatCurrency(totalIncome);
             totalExpenseElem.textContent = formatCurrency(totalExpense);
             currentBalanceElem.textContent = formatCurrency(currentBalance);
+            totalPaidElem.textContent = formatCurrency(totalPaid);
+            totalPendingElem.textContent = formatCurrency(totalPending);
 
             // Ajusta a cor do saldo com base no valor
             if (currentBalance >= 0) {
@@ -1136,6 +1175,24 @@
                 const valueCell = row.insertCell();
                 valueCell.textContent = formatCurrency(Math.abs(transaction.value));
                 valueCell.setAttribute('data-label', 'Valor');
+
+                // Paga? (apenas para despesas)
+                const paidCell = row.insertCell();
+                paidCell.setAttribute('data-label', 'Paga?');
+                
+                if (transaction.type === 'expense') {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = transaction.paga || false;
+                    checkbox.addEventListener('change', () => {
+                        transaction.paga = checkbox.checked;
+                        saveTransactions();
+                        updateUI();
+                    });
+                    paidCell.appendChild(checkbox);
+                } else {
+                    paidCell.textContent = '-';
+                }
 
                 // Ações
                 const actionsCell = row.insertCell();
@@ -1396,7 +1453,7 @@
             }
             
             // Cabeçalho do CSV com colunas organizadas
-            let csvContent = "Tipo;Descrição;Categoria;Valor\n";
+            let csvContent = "Tipo;Descrição;Categoria;Valor;Paga?\n";
             
             // Ordenar transações por data (mais recentes primeiro)
             const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
@@ -1408,28 +1465,42 @@
                 const description = transaction.description.replace(/[\n;]/g, ' '); 
                 const category = transaction.category;
                 const value = formatCurrencyForCSV(Math.abs(transaction.value));
+                // Apenas despesas têm informação de pagamento
+                const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
                 
                 // Adicionar linha ao CSV usando ponto-e-vírgula como separador
-                csvContent += `${type};"${description}";${category};${value}\n`;
+                csvContent += `${type};"${description}";${category};${value};${paid}\n`;
             });
             
             // Adicionar resumo financeiro
             let totalIncome = 0;
             let totalExpense = 0;
+            let totalPaid = 0;
+            let totalPending = 0;
+            
             transactions.forEach(transaction => {
                 if (transaction.type === 'income') {
                     totalIncome += transaction.value;
                 } else {
-                    totalExpense += Math.abs(transaction.value);
+                    const expenseValue = Math.abs(transaction.value);
+                    totalExpense += expenseValue;
+                    
+                    if (transaction.paga) {
+                        totalPaid += expenseValue;
+                    } else {
+                        totalPending += expenseValue;
+                    }
                 }
             });
+            
             const currentBalance = totalIncome - totalExpense;
             
             csvContent += "\n;;;;\n";
-            csvContent += `;;;;\n`;
             csvContent += `Resumo Financeiro;;;;\n`;
             csvContent += `Renda Total;;;${formatCurrencyForCSV(totalIncome)}\n`;
             csvContent += `Despesa Total;;;${formatCurrencyForCSV(totalExpense)}\n`;
+            csvContent += `Total Pago;;;${formatCurrencyForCSV(totalPaid)}\n`;
+            csvContent += `Total Pendente;;;${formatCurrencyForCSV(totalPending)}\n`;
             csvContent += `Saldo Atual;;;${formatCurrencyForCSV(currentBalance)}\n`;
             
             // Criar link de download
@@ -1486,13 +1557,24 @@
                 // Calcular totais
                 let totalIncome = 0;
                 let totalExpense = 0;
+                let totalPaid = 0;
+                let totalPending = 0;
+                
                 transactions.forEach(transaction => {
                     if (transaction.type === 'income') {
                         totalIncome += transaction.value;
                     } else {
-                        totalExpense += Math.abs(transaction.value);
+                        const expenseValue = Math.abs(transaction.value);
+                        totalExpense += expenseValue;
+                        
+                        if (transaction.paga) {
+                            totalPaid += expenseValue;
+                        } else {
+                            totalPending += expenseValue;
+                        }
                     }
                 });
+                
                 const currentBalance = totalIncome - totalExpense;
                 
                 // Adicionar valores
@@ -1501,6 +1583,10 @@
                 pdf.text(`Renda Total: ${formatCurrency(totalIncome)}`, margin, yPos);
                 yPos += 8;
                 pdf.text(`Despesa Total: ${formatCurrency(totalExpense)}`, margin, yPos);
+                yPos += 8;
+                pdf.text(`Total Pago: ${formatCurrency(totalPaid)}`, margin, yPos);
+                yPos += 8;
+                pdf.text(`Total Pendente: ${formatCurrency(totalPending)}`, margin, yPos);
                 yPos += 8;
                 pdf.text(`Saldo Atual: ${formatCurrency(currentBalance)}`, margin, yPos);
                 yPos += 15;
@@ -1514,10 +1600,19 @@
                 // Cabeçalho da tabela
                 pdf.setFontSize(12);
                 pdf.setFont('helvetica', 'bold');
-                pdf.text('Tipo', margin, yPos);
-                pdf.text('Descrição', margin + 30, yPos);
-                pdf.text('Categoria', margin + 100, yPos);
-                pdf.text('Valor', margin + 160, yPos);
+                
+                // Posições ajustadas para caber no A4
+                const col1 = margin;          // Tipo (15mm)
+                const col2 = margin + 18;      // Descrição (65mm)
+                const col3 = margin + 83;      // Categoria (30mm)
+                const col4 = margin + 113;     // Valor (30mm)
+                const col5 = margin + 143;     // Paga? (20mm)
+                
+                pdf.text('Tipo', col1, yPos);
+                pdf.text('Descrição', col2, yPos);
+                pdf.text('Categoria', col3, yPos);
+                pdf.text('Valor', col4, yPos);
+                pdf.text('Paga?', col5, yPos);
                 yPos += 8;
                 
                 // Linha divisória
@@ -1537,19 +1632,59 @@
                     if (yPos > pageHeight - 20) {
                         pdf.addPage();
                         yPos = margin;
+                        // Adicionar cabeçalho novamente na nova página
+                        pdf.setFontSize(12);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text('Tipo', col1, yPos);
+                        pdf.text('Descrição', col2, yPos);
+                        pdf.text('Categoria', col3, yPos);
+                        pdf.text('Valor', col4, yPos);
+                        pdf.text('Paga?', col5, yPos);
+                        yPos += 18; // Pular linha do cabeçalho + margem
+                        pdf.setFontSize(10);
+                        pdf.setFont('helvetica', 'normal');
                     }
                     
                     const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
                     const description = transaction.description;
                     const category = transaction.category;
                     const value = formatCurrency(Math.abs(transaction.value));
+                    // Apenas despesas têm informação de pagamento
+                    const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
                     
-                    pdf.text(type, margin, yPos);
-                    pdf.text(description.substring(0, 30), margin + 30, yPos);
-                    pdf.text(category, margin + 100, yPos);
-                    pdf.text(value, margin + 160, yPos);
+                    // Quebrar descrição longa em múltiplas linhas
+                    const maxDescWidth = 65; // Largura máxima da descrição em mm
+                    const descLines = pdf.splitTextToSize(description, maxDescWidth);
                     
-                    yPos += 8;
+                    // Calcular altura necessária para esta linha
+                    const lineHeight = 8;
+                    const cellHeight = Math.max(lineHeight, descLines.length * lineHeight);
+                    
+                    // Escrever tipo
+                    pdf.text(type, col1, yPos + (cellHeight/2 - 2));
+                    
+                    // Escrever descrição (com quebra de linha)
+                    let descY = yPos;
+                    for (let i = 0; i < descLines.length; i++) {
+                        pdf.text(descLines[i], col2, descY);
+                        descY += lineHeight;
+                    }
+                    
+                    // Escrever categoria
+                    pdf.text(category, col3, yPos + (cellHeight/2 - 2));
+                    
+                    // Escrever valor
+                    pdf.text(value, col4, yPos + (cellHeight/2 - 2));
+                    
+                    // Escrever status de pagamento
+                    pdf.text(paid, col5, yPos + (cellHeight/2 - 2));
+                    
+                    // Desenhar linha horizontal para separar as linhas
+                    pdf.setDrawColor(200, 200, 200);
+                    pdf.setLineWidth(0.1);
+                    pdf.line(margin, yPos + cellHeight, pageWidth - margin, yPos + cellHeight);
+                    
+                    yPos += cellHeight;
                 });
                 
                 // Salvar o PDF
@@ -1594,10 +1729,10 @@
                 transactions = [
                     { id: Date.now(), description: "Salário", category: "Salário", value: 5000, type: "income" },
                     { id: Date.now(), description: "Freelance", category: "Freelance", value: 1500, type: "income" },
-                    { id: Date.now(), description: "Aluguel", category: "Moradia", value: -1200, type: "expense" },
-                    { id: Date.now(), description: "Supermercado", category: "Alimentação", value: -450, type: "expense" },
-                    { id: Date.now(), description: "Transporte", category: "Transporte", value: -300, type: "expense" },
-                    { id: Date.now(), description: "Cinema", category: "Lazer", value: -150, type: "expense" }
+                    { id: Date.now(), description: "Aluguel", category: "Moradia", value: -1200, type: "expense", paga: false },
+                    { id: Date.now(), description: "Supermercado", category: "Alimentação", value: -450, type: "expense", paga: true },
+                    { id: Date.now(), description: "Transporte", category: "Transporte", value: -300, type: "expense", paga: false },
+                    { id: Date.now(), description: "Cinema", category: "Lazer", value: -150, type: "expense", paga: true }
                 ];
                 saveTransactions();
                 updateUI();
