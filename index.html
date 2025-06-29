@@ -33,7 +33,7 @@
             max-width: 1080px;
             padding: 25px;
             position: relative;
-            padding-bottom: 70px;
+            padding-bottom: 100px;
             overflow: hidden;
         }
         
@@ -225,6 +225,24 @@
             justify-content: center;
         }
         
+        .btn-json {
+            background: linear-gradient(to right, #f39c12, #f1c40f);
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            font-size: 1.0em;
+            justify-content: center;
+        }
+        
+        .btn-import {
+            background: linear-gradient(to right, #8e44ad, #9b59b6);
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            font-size: 1.0em;
+            justify-content: center;
+        }
+        
         .summary-section {
             display: flex;
             justify-content: space-around;
@@ -268,15 +286,15 @@
         }
         
         #current-balance {
-            color: #3498db; /* Cor azul para o saldo */
+            color: #3498db;
         }
         
         #total-paid {
-            color: #2c3e50; /* Cor escura para total pago */
+            color: #2c3e50;
         }
         
         #total-pending {
-            color: #2c3e50; /* Cor escura para total pendente */
+            color: #2c3e50;
         }
         
         .data-section {
@@ -492,6 +510,102 @@
             animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
         }
         
+        .import-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .import-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .modal-content {
+            margin-bottom: 20px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            margin: 15px 0;
+        }
+        
+        .file-label {
+            display: block;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-label:hover {
+            background: #e3f2fd;
+        }
+        
+        .file-label i {
+            font-size: 2em;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+        }
+        
         @keyframes slideIn {
             from { right: -300px; opacity: 0; }
             to { right: 20px; opacity: 1; }
@@ -502,7 +616,6 @@
             to { opacity: 0; }
         }
         
-        /* Melhorias para tabela em dispositivos móveis */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -510,7 +623,7 @@
             
             .financial-widget {
                 padding: 15px;
-                padding-bottom: 100px;
+                padding-bottom: 120px;
             }
             
             .header {
@@ -584,7 +697,6 @@
                 font-size: 0.85em;
             }
             
-            /* Melhorias específicas para a tabela em mobile */
             .data-section table, 
             .data-section thead, 
             .data-section tbody, 
@@ -638,12 +750,10 @@
                 font-size: 0.85em;
             }
             
-            /* Remover o label "Paga?" para rendas */
             .data-section td[data-label="Paga?"][data-is-income="true"]::before {
                 display: none;
             }
             
-            /* Ajuste para botões de ação em mobile */
             .action-cell {
                 display: flex;
                 justify-content: center;
@@ -651,7 +761,6 @@
                 padding: 10px 0;
             }
             
-            /* Centralizar e organizar os botões */
             .action-cell .btn {
                 width: auto;
                 padding: 8px 15px;
@@ -659,12 +768,10 @@
                 display: inline-flex;
             }
             
-            /* Esconder o texto dos botões em mobile */
             .action-cell .btn span {
                 display: none;
             }
             
-            /* Ajuste para tipos de transação em mobile */
             .type-income, .type-expense {
                 font-size: 0.9em;
                 padding: 4px 8px;
@@ -679,7 +786,6 @@
             }
         }
         
-        /* Melhorias adicionais para telas muito pequenas */
         @media (max-width: 480px) {
             h1 {
                 font-size: 1.6em;
@@ -712,18 +818,16 @@
                 font-size: 1.0em;
             }
             
-            .btn-image, .btn-csv, .btn-pdf {
+            .btn-image, .btn-csv, .btn-pdf, .btn-json, .btn-import {
                 padding: 14px;
                 font-size: 0.95em;
             }
             
-            /* Botões de ação em telas muito pequenas */
             .action-cell .btn {
                 padding: 8px 12px;
                 font-size: 0.8em;
             }
             
-            /* Ícones um pouco menores em telas muito pequenas */
             .action-cell .btn i {
                 font-size: 0.9em;
             }
@@ -732,7 +836,44 @@
 </head>
 <body>
     <div class="export-notification" id="export-notification">
-        <i class="fas fa-check-circle"></i> Arquivo exportado com sucesso!
+        <i class="fas fa-check-circle"></i> <span id="notification-text"></span>
+    </div>
+    
+    <div class="import-overlay" id="import-overlay">
+        <div class="import-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-import"></i> Importar Dados Financeiros</h2>
+                <button class="close-modal" id="close-import-modal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p>Selecione um arquivo JSON exportado anteriormente para importar seus dados financeiros.</p>
+                
+                <div class="file-input-wrapper">
+                    <label class="file-label" for="import-file-input">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div>Clique para selecionar um arquivo</div>
+                        <div class="file-name" id="file-name-display">Nenhum arquivo selecionado</div>
+                    </label>
+                    <input type="file" id="import-file-input" class="file-input" accept=".json">
+                </div>
+                
+                <div class="import-options">
+                    <p><strong>Opções de importação:</strong></p>
+                    <div style="margin: 10px 0;">
+                        <input type="radio" id="merge-data" name="import-option" value="merge" checked>
+                        <label for="merge-data">Mesclar com dados existentes</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="replace-data" name="import-option" value="replace">
+                        <label for="replace-data">Substituir todos os dados existentes</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="cancel-import">Cancelar</button>
+                <button class="btn btn-update" id="confirm-import" disabled>Importar Dados</button>
+            </div>
+        </div>
     </div>
     
     <div class="financial-widget" id="financial-widget-content">
@@ -756,7 +897,6 @@
                 <label for="category"><i class="fas fa-tag"></i> Categoria:</label>
                 <select id="category" required>
                     <option value="" disabled selected>Selecione uma categoria</option>
-                    <!-- As categorias serão preenchidas via JavaScript -->
                 </select>
                 <div class="error-message" id="category-error">Selecione uma categoria válida para este tipo de transação</div>
             </div>
@@ -769,7 +909,6 @@
                 </button>
             </div>
             
-            <!-- Área para botões de atualização/cancelamento (inicialmente oculta) -->
             <div id="edit-mode-section" class="action-buttons" style="display: none;">
                 <button id="update-transaction" class="btn btn-update">
                     <i class="fas fa-save"></i> Atualizar Transação
@@ -849,6 +988,12 @@
             <button id="export-pdf" class="btn btn-pdf">
                 <i class="fas fa-file-pdf"></i> Exportar para PDF
             </button>
+            <button id="export-json" class="btn btn-json">
+                <i class="fas fa-file-export"></i> Exportar Dados (JSON)
+            </button>
+            <button id="import-data" class="btn btn-import">
+                <i class="fas fa-file-import"></i> Importar Dados (JSON)
+            </button>
         </div>
 
         <div class="widget-footer">
@@ -872,6 +1017,8 @@
         const generateImageBtn = document.getElementById('generate-image');
         const exportCsvBtn = document.getElementById('export-csv');
         const exportPdfBtn = document.getElementById('export-pdf');
+        const exportJsonBtn = document.getElementById('export-json');
+        const importDataBtn = document.getElementById('import-data');
         const expenseChartCanvas = document.getElementById('expense-chart').getContext('2d');
         const summaryChartCanvas = document.getElementById('summary-chart').getContext('2d');
         const financialWidgetContent = document.getElementById('financial-widget-content');
@@ -881,6 +1028,13 @@
         const editModeSection = document.getElementById('edit-mode-section');
         const categoryError = document.getElementById('category-error');
         const exportNotification = document.getElementById('export-notification');
+        const notificationText = document.getElementById('notification-text');
+        const importOverlay = document.getElementById('import-overlay');
+        const closeImportModal = document.getElementById('close-import-modal');
+        const cancelImportBtn = document.getElementById('cancel-import');
+        const confirmImportBtn = document.getElementById('confirm-import');
+        const importFileInput = document.getElementById('import-file-input');
+        const fileNameDisplay = document.getElementById('file-name-display');
         
         // Atualizar data atual
         const now = new Date();
@@ -932,6 +1086,7 @@
         let isEditMode = false;
         let currentEditId = null;
         let currentTransactionType = null;
+        let importOption = "merge"; // merge ou replace
 
         // --- Funções Principais ---
 
@@ -1415,30 +1570,6 @@
                 maximumFractionDigits: 2
             });
         }
-
-        // Geração de imagem
-        async function generateImage() {
-            try {
-                const canvas = await html2canvas(financialWidgetContent, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-
-                const image = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = 'relatorio_financeiro.png';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showExportNotification();
-            } catch (error) {
-                console.error("Erro ao gerar imagem:", error);
-                alert('Ocorreu um erro ao gerar a imagem. Tente novamente.');
-            }
-        }
         
         // Exportar para CSV com organização correta
         function exportToCSV() {
@@ -1510,7 +1641,113 @@
             link.click();
             document.body.removeChild(link);
             
+            notificationText.textContent = "Dados exportados para CSV com sucesso!";
             showExportNotification();
+        }
+        
+        // Exportar dados para JSON
+        function exportToJSON() {
+            // Verificar se existem transações
+            if (transactions.length === 0) {
+                alert('Não há transações para exportar!');
+                return;
+            }
+            
+            // Criar objeto com os dados a serem exportados
+            const exportData = {
+                app: "Controle Financeiro",
+                version: "1.0",
+                timestamp: new Date().toISOString(),
+                transactions: transactions
+            };
+            
+            // Criar string JSON formatada
+            const jsonData = JSON.stringify(exportData, null, 2);
+            
+            // Criar blob e link de download
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dados-financeiros-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            notificationText.textContent = "Dados exportados para JSON com sucesso!";
+            showExportNotification();
+        }
+        
+        // Importar dados de um arquivo JSON
+        function importFromJSON(file, option) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validar a estrutura do arquivo
+                    if (!data.transactions || !Array.isArray(data.transactions)) {
+                        throw new Error("Formato de arquivo inválido");
+                    }
+                    
+                    // Processar os dados conforme a opção selecionada
+                    if (option === "replace") {
+                        transactions = data.transactions;
+                    } else { // merge
+                        // Mesclar transações, evitando duplicatas por ID
+                        const existingIds = transactions.map(t => t.id);
+                        const newTransactions = data.transactions.filter(t => !existingIds.includes(t.id));
+                        transactions = [...transactions, ...newTransactions];
+                    }
+                    
+                    // Salvar e atualizar
+                    saveTransactions();
+                    updateUI();
+                    
+                    notificationText.textContent = `Dados importados com sucesso! (${data.transactions.length} transações)`;
+                    showExportNotification();
+                    
+                    // Fechar o modal de importação
+                    importOverlay.style.display = 'none';
+                    
+                } catch (error) {
+                    console.error("Erro ao importar dados:", error);
+                    alert("Erro ao importar dados: " + error.message);
+                }
+            };
+            
+            reader.onerror = function() {
+                alert("Erro ao ler o arquivo");
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // Geração de imagem
+        async function generateImage() {
+            try {
+                const canvas = await html2canvas(financialWidgetContent, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'relatorio_financeiro.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                notificationText.textContent = "Imagem do relatório gerada com sucesso!";
+                showExportNotification();
+            } catch (error) {
+                console.error("Erro ao gerar imagem:", error);
+                alert('Ocorreu um erro ao gerar a imagem. Tente novamente.');
+            }
         }
         
         // Exportar para PDF com organização profissional
@@ -1716,6 +1953,7 @@
                 // Salvar o PDF
                 pdf.save('relatorio_financeiro.pdf');
                 
+                notificationText.textContent = "Relatório PDF gerado com sucesso!";
                 showExportNotification();
             } catch (error) {
                 console.error("Erro ao gerar PDF:", error);
@@ -1723,7 +1961,7 @@
             }
         }
         
-        // Mostrar notificação de exportação
+        // Mostrar notificação de exportação/importação
         function showExportNotification() {
             exportNotification.style.display = 'block';
             setTimeout(() => {
@@ -1743,11 +1981,54 @@
         generateImageBtn.addEventListener('click', generateImage);
         exportCsvBtn.addEventListener('click', exportToCSV);
         exportPdfBtn.addEventListener('click', exportToPDF);
+        exportJsonBtn.addEventListener('click', exportToJSON);
         updateBtn.addEventListener('click', updateTransaction);
         cancelBtn.addEventListener('click', cancelEditMode);
         
+        // Importação de dados
+        importDataBtn.addEventListener('click', () => {
+            fileNameDisplay.textContent = "Nenhum arquivo selecionado";
+            confirmImportBtn.disabled = true;
+            importOverlay.style.display = 'flex';
+        });
+        
+        closeImportModal.addEventListener('click', () => {
+            importOverlay.style.display = 'none';
+        });
+        
+        cancelImportBtn.addEventListener('click', () => {
+            importOverlay.style.display = 'none';
+        });
+        
         // Ao mudar a categoria, esconder qualquer erro
         categoryInput.addEventListener('change', hideCategoryError);
+        
+        // Opções de importação
+        document.querySelectorAll('input[name="import-option"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                importOption = e.target.value;
+            });
+        });
+        
+        // Seleção de arquivo para importação
+        importFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileNameDisplay.textContent = file.name;
+                confirmImportBtn.disabled = false;
+            } else {
+                fileNameDisplay.textContent = "Nenhum arquivo selecionado";
+                confirmImportBtn.disabled = true;
+            }
+        });
+        
+        // Confirmação de importação
+        confirmImportBtn.addEventListener('click', () => {
+            const file = importFileInput.files[0];
+            if (file) {
+                importFromJSON(file, importOption);
+            }
+        });
 
         // Adicionar transações de exemplo
         function addSampleData() {
