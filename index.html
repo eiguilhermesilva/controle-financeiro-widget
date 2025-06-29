@@ -433,6 +433,55 @@
             font-size: 0.85em;
         }
         
+        /* Nova seção de saúde financeira */
+        .financial-health-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        
+        .health-message {
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .health-message i {
+            font-size: 1.5em;
+        }
+        
+        .health-positive {
+            background: linear-gradient(to right, rgba(39, 174, 96, 0.15), rgba(46, 204, 113, 0.15));
+            color: #27ae60;
+            border-left: 5px solid #27ae60;
+        }
+        
+        .health-neutral {
+            background: linear-gradient(to right, rgba(241, 196, 15, 0.15), rgba(243, 156, 18, 0.15));
+            color: #f39c12;
+            border-left: 5px solid #f39c12;
+        }
+        
+        .health-warning {
+            background: linear-gradient(to right, rgba(230, 126, 34, 0.15), rgba(211, 84, 0, 0.15));
+            color: #e67e22;
+            border-left: 5px solid #e67e22;
+        }
+        
+        .health-critical {
+            background: linear-gradient(to right, rgba(231, 76, 60, 0.15), rgba(192, 57, 43, 0.15));
+            color: #e74c3c;
+            border-left: 5px solid #e74c3c;
+        }
+        
         .widget-footer {
             text-align: center;
             margin-top: 30px;
@@ -683,9 +732,20 @@
                 padding: 15px;
             }
             
+            .financial-health-section {
+                padding: 15px;
+            }
+            
             .section-title {
                 font-size: 1.0em;
                 justify-content: center;
+            }
+            
+            .health-message {
+                font-size: 1.0em;
+                padding: 12px;
+                flex-direction: column;
+                text-align: center;
             }
             
             .action-buttons {
@@ -977,6 +1037,15 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Nova seção de saúde financeira -->
+        <div class="financial-health-section">
+            <div class="section-title"><i class="fas fa-heartbeat"></i> Saúde Financeira</div>
+            <div class="health-message" id="financial-health-message">
+                <i class="fas fa-info-circle"></i>
+                <span>Adicione transações para analisar sua saúde financeira</span>
+            </div>
+        </div>
 
         <div class="export-section">
             <button id="generate-image" class="btn btn-image">
@@ -1035,6 +1104,7 @@
         const confirmImportBtn = document.getElementById('confirm-import');
         const importFileInput = document.getElementById('import-file-input');
         const fileNameDisplay = document.getElementById('file-name-display');
+        const financialHealthMessage = document.getElementById('financial-health-message');
         
         // Atualizar data atual
         const now = new Date();
@@ -1261,6 +1331,7 @@
             updateSummary();
             renderTransactionsTable();
             updateCharts();
+            updateFinancialHealthMessage(); // Atualiza a mensagem de saúde financeira
         }
 
         // Atualiza os totais de renda, despesa e saldo
@@ -1292,6 +1363,9 @@
             currentBalanceElem.textContent = formatCurrency(currentBalance);
             totalPaidElem.textContent = formatCurrency(totalPaid);
             totalPendingElem.textContent = formatCurrency(totalPending);
+            
+            // Retornar os valores para uso na mensagem de saúde financeira
+            return { totalIncome, totalExpense, currentBalance };
         }
 
         // Renderiza as transações na tabela
@@ -1542,6 +1616,50 @@
                     }
                 }
             });
+        }
+        
+        // Atualiza a mensagem de saúde financeira
+        function updateFinancialHealthMessage() {
+            const { totalIncome, totalExpense, currentBalance } = updateSummary();
+            
+            let message = "";
+            let icon = "";
+            let healthClass = "health-neutral";
+            
+            // Se não há transações
+            if (transactions.length === 0) {
+                message = "Adicione transações para analisar sua saúde financeira";
+                icon = "fas fa-info-circle";
+                healthClass = "health-neutral";
+            }
+            // Saldo negativo
+            else if (currentBalance < 0) {
+                message = "Cuidado! Seu saldo está negativo. Considere reduzir despesas ou aumentar rendas.";
+                icon = "fas fa-exclamation-triangle";
+                healthClass = "health-critical";
+            }
+            // Despesas > 75% da renda
+            else if (totalIncome > 0 && (totalExpense / totalIncome) > 0.75) {
+                message = "Atenção! Suas despesas estão acima de 75% da sua renda. Tente reduzir custos.";
+                icon = "fas fa-exclamation-circle";
+                healthClass = "health-warning";
+            }
+            // Despesas entre 50% e 75% da renda
+            else if (totalIncome > 0 && (totalExpense / totalIncome) > 0.5) {
+                message = "Sua saúde financeira está estável, mas você pode melhorar. Tente economizar mais.";
+                icon = "fas fa-balance-scale";
+                healthClass = "health-neutral";
+            }
+            // Situação saudável
+            else {
+                message = "Parabéns! Sua saúde financeira está excelente. Continue assim!";
+                icon = "fas fa-check-circle";
+                healthClass = "health-positive";
+            }
+            
+            // Atualizar o elemento HTML
+            financialHealthMessage.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
+            financialHealthMessage.className = `health-message ${healthClass}`;
         }
 
         // Limpa os campos de entrada
