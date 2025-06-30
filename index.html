@@ -729,6 +729,69 @@
             transform: translateY(-3px);
         }
         
+        /* NOVOS ESTILOS PARA BOTÕES MOBILE */
+        .mobile-export-buttons {
+            display: none; /* Oculto por padrão */
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .mobile-export-button {
+            background: linear-gradient(to right, #3498db, #5dade2);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 80px;
+        }
+        
+        .mobile-export-button i {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        
+        .mobile-export-button.csv {
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+        }
+        
+        .mobile-export-button.pdf {
+            background: linear-gradient(to right, #e74c3c, #ff6b6b);
+        }
+        
+        .mobile-export-button.json {
+            background: linear-gradient(to right, #f39c12, #f1c40f);
+        }
+        
+        .mobile-export-button.import {
+            background: linear-gradient(to right, #8e44ad, #9b59b6);
+        }
+        
+        .mobile-export-button.whatsapp {
+            background: linear-gradient(to right, #25D366, #128C7E);
+        }
+        
+        .mobile-export-button.image {
+            background: linear-gradient(to right, #3498db, #5dade2);
+        }
+        
+        .mobile-export-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .mobile-export-button span {
+            font-size: 0.75em;
+        }
+        
         @media (min-width: 769px) {
             .back-to-top {
                 position: absolute;
@@ -914,7 +977,11 @@
             }
             
             .export-section {
-                grid-template-columns: 1fr;
+                display: none; /* Ocultar botões padrão em mobile */
+            }
+            
+            .mobile-export-buttons {
+                display: grid; /* Mostrar botões compactos em mobile */
             }
         }
         
@@ -969,6 +1036,15 @@
                 right: 15px;
                 width: 40px;
                 height: 40px;
+            }
+            
+            .mobile-export-button {
+                padding: 8px 3px;
+                font-size: 0.7em;
+            }
+            
+            .mobile-export-button i {
+                font-size: 1.5em;
             }
         }
     </style>
@@ -1133,6 +1209,7 @@
             </div>
         </div>
 
+        <!-- Seção de exportação original (oculta em mobile) -->
         <div class="export-section">
             <button id="generate-image" class="btn btn-image">
                 <i class="fas fa-camera"></i> Gerar Imagem do Relatório
@@ -1151,6 +1228,34 @@
             </button>
             <button id="share-whatsapp" class="btn btn-whatsapp">
                 <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
+            </button>
+        </div>
+        
+        <!-- NOVA SEÇÃO DE BOTÕES COMPACTOS PARA MOBILE -->
+        <div class="mobile-export-buttons">
+            <button class="mobile-export-button pdf" id="mobile-pdf">
+                <i class="fas fa-file-pdf"></i>
+                <span>PDF</span>
+            </button>
+            <button class="mobile-export-button csv" id="mobile-csv">
+                <i class="fas fa-file-csv"></i>
+                <span>CSV</span>
+            </button>
+            <button class="mobile-export-button json" id="mobile-json">
+                <i class="fas fa-file-export"></i>
+                <span>JSON</span>
+            </button>
+            <button class="mobile-export-button import" id="mobile-import">
+                <i class="fas fa-file-import"></i>
+                <span>Importar</span>
+            </button>
+            <button class="mobile-export-button whatsapp" id="mobile-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>WhatsApp</span>
+            </button>
+            <button class="mobile-export-button image" id="mobile-image">
+                <i class="fas fa-camera"></i>
+                <span>Imagem</span>
             </button>
         </div>
         
@@ -1201,6 +1306,14 @@
         const transactionsIndicator = document.getElementById('transactions-indicator');
         const backToTopBtn = document.getElementById('back-to-top');
         const shareWhatsappBtn = document.getElementById('share-whatsapp');
+        
+        // Referências para os botões mobile
+        const mobilePdfBtn = document.getElementById('mobile-pdf');
+        const mobileCsvBtn = document.getElementById('mobile-csv');
+        const mobileJsonBtn = document.getElementById('mobile-json');
+        const mobileImportBtn = document.getElementById('mobile-import');
+        const mobileWhatsappBtn = document.getElementById('mobile-whatsapp');
+        const mobileImageBtn = document.getElementById('mobile-image');
         
         // Atualizar data atual
         const now = new Date();
@@ -1511,719 +1624,521 @@
 
                 // Paga? (apenas para despesas)
                 const paidCell = row.insertCell();
-                if (transaction.type === 'expense') {
-                    paidCell.setAttribute('data-label', 'Paga?');
-                    paidCell.setAttribute('data-is-income', 'false');
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.checked = transaction.paga || false;
-                    checkbox.addEventListener('change', () => {
-                        transaction.paga = checkbox.checked;
-                        saveTransactions();
-                        updateUI();
-                    });
-                    paidCell.appendChild(checkbox);
-                } else {
-                    paidCell.setAttribute('data-label', 'Paga?');
-                    paidCell.setAttribute('data-is-income', 'true');
-                    paidCell.textContent = '-';
-                }
-
-                // Ações
-                const actionsCell = row.insertCell();
-                actionsCell.setAttribute('data-label', 'Ações');
-                actionsCell.className = 'action-cell';
+            if (transaction.type === 'expense') {
+                paidCell.setAttribute('data-label', 'Paga?');
+                paidCell.setAttribute('data-is-income', 'false');
                 
-                const editBtn = document.createElement('button');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i> <span>Editar</span>';
-                editBtn.classList.add('btn', 'btn-edit');
-                editBtn.onclick = () => activateEditMode(transaction.id);
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> <span>Excluir</span>';
-                deleteBtn.classList.add('btn', 'btn-delete');
-                deleteBtn.onclick = () => deleteTransaction(transaction.id);
-                
-                actionsCell.appendChild(editBtn);
-                actionsCell.appendChild(deleteBtn);
-            });
-        }
-
-        // Atualiza os gráficos
-        function updateCharts() {
-            // Calcular valores para os gráficos
-            const expenseByCategory = {};
-            let totalIncome = 0;
-            let totalExpense = 0;
-            
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.value;
-                } else {
-                    totalExpense += Math.abs(t.value);
-                    
-                    // Agrupar despesas por categoria
-                    expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + Math.abs(t.value);
-                }
-            });
-            
-            const currentBalance = totalIncome - totalExpense;
-            
-            // Calcular porcentagens para o gráfico de barras
-            const incomePercent = totalIncome > 0 ? 100 : 0;
-            const expensePercent = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
-            const balancePercent = totalIncome > 0 ? (currentBalance / totalIncome) * 100 : 0;
-            
-            // Atualizar gráfico de despesas
-            updateExpenseChart(Object.keys(expenseByCategory), Object.values(expenseByCategory));
-            
-            // Atualizar gráfico de porcentagens
-            updateSummaryChart(incomePercent, expensePercent, balancePercent);
-        }
-
-        // Atualizar gráfico de despesas (pizza)
-        function updateExpenseChart(labels, data) {
-            if (expenseChart) {
-                expenseChart.destroy();
-            }
-            
-            // Se não houver despesas, exibir mensagem
-            if (data.length === 0) {
-                expenseChart = new Chart(expenseChartCanvas, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [1],
-                            backgroundColor: ['#f0f0f0']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false },
-                            beforeDraw: function(chart) {
-                                const ctx = chart.ctx;
-                                const width = chart.width;
-                                const height = chart.height;
-                                
-                                ctx.restore();
-                                ctx.font = "16px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'middle';
-                                ctx.fillStyle = '#7f8c8d';
-                                ctx.fillText('Nenhuma despesa registrada', width / 2, height / 2);
-                                ctx.save();
-                            }
-                        }
-                    }
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = transaction.paga || false;
+                checkbox.addEventListener('change', () => {
+                    transaction.paga = checkbox.checked;
+                    saveTransactions();
+                    updateUI();
                 });
-                return;
+                paidCell.appendChild(checkbox);
+            } else {
+                paidCell.setAttribute('data-label', 'Paga?');
+                paidCell.setAttribute('data-is-income', 'true');
+                paidCell.textContent = '-';
             }
 
+            // Ações
+            const actionsCell = row.insertCell();
+            actionsCell.setAttribute('data-label', 'Ações');
+            actionsCell.className = 'action-cell';
+            
+            const editBtn = document.createElement('button');
+            editBtn.innerHTML = '<i class="fas fa-edit"></i> <span>Editar</span>';
+            editBtn.classList.add('btn', 'btn-edit');
+            editBtn.onclick = () => activateEditMode(transaction.id);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> <span>Excluir</span>';
+            deleteBtn.classList.add('btn', 'btn-delete');
+            deleteBtn.onclick = () => deleteTransaction(transaction.id);
+            
+            actionsCell.appendChild(editBtn);
+            actionsCell.appendChild(deleteBtn);
+        });
+    }
+
+    // Atualiza os gráficos
+    function updateCharts() {
+        // Calcular valores para os gráficos
+        const expenseByCategory = {};
+        let totalIncome = 0;
+        let totalExpense = 0;
+        
+        transactions.forEach(t => {
+            if (t.type === 'income') {
+                totalIncome += t.value;
+            } else {
+                totalExpense += Math.abs(t.value);
+                
+                // Agrupar despesas por categoria
+                expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + Math.abs(t.value);
+            }
+        });
+        
+        const currentBalance = totalIncome - totalExpense;
+        
+        // Calcular porcentagens para o gráfico de barras
+        const incomePercent = totalIncome > 0 ? 100 : 0;
+        const expensePercent = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
+        const balancePercent = totalIncome > 0 ? (currentBalance / totalIncome) * 100 : 0;
+        
+        // Atualizar gráfico de despesas
+        updateExpenseChart(Object.keys(expenseByCategory), Object.values(expenseByCategory));
+        
+        // Atualizar gráfico de porcentagens
+        updateSummaryChart(incomePercent, expensePercent, balancePercent);
+    }
+
+    // Atualizar gráfico de despesas (pizza)
+    function updateExpenseChart(labels, data) {
+        if (expenseChart) {
+            expenseChart.destroy();
+        }
+        
+        // Se não houver despesas, exibir mensagem
+        if (data.length === 0) {
             expenseChart = new Chart(expenseChartCanvas, {
                 type: 'doughnut',
                 data: {
-                    labels: labels,
                     datasets: [{
-                        data: data,
-                        backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-                            '#8D6E63', '#4DD0E1', '#F44336', '#9C27B0'
-                        ],
-                        hoverOffset: 4
+                        data: [1],
+                        backgroundColor: ['#f0f0f0']
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                font: {
-                                    size: 11
-                                },
-                                color: '#555'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += formatCurrency(context.parsed);
-                                    }
-                                    return label;
-                                }
-                            }
+                        legend: { display: false },
+                        tooltip: { enabled: false },
+                        beforeDraw: function(chart) {
+                            const ctx = chart.ctx;
+                            const width = chart.width;
+                            const height = chart.height;
+                            
+                            ctx.restore();
+                            ctx.font = "16px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = '#7f8c8d';
+                            ctx.fillText('Nenhuma despesa registrada', width / 2, height / 2);
+                            ctx.save();
                         }
                     }
                 }
             });
+            return;
         }
 
-        // Atualizar gráfico de porcentagens (barras horizontais)
-        function updateSummaryChart(incomePercent, expensePercent, balancePercent) {
-            if (summaryChart) {
-                summaryChart.destroy();
-            }
-
-            summaryChart = new Chart(summaryChartCanvas, {
-                type: 'bar',
-                data: {
-                    labels: ['Rendas', 'Gastos', 'Saldo'],
-                    datasets: [{
-                        label: 'Porcentagem em relação à renda total',
-                        data: [incomePercent, expensePercent, balancePercent],
-                        backgroundColor: [
-                            'rgba(39, 174, 96, 0.7)',   // Verde para rendas
-                            'rgba(231, 76, 60, 0.7)',   // Vermelho para gastos
-                            'rgba(52, 152, 219, 0.7)'   // Azul para saldo
-                        ],
-                        borderColor: [
-                            'rgba(39, 174, 96, 1)',
-                            'rgba(231, 76, 60, 1)',
-                            'rgba(52, 152, 219, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.parsed.x.toFixed(1)}%`;
-                                }
-                            }
+        expenseChart = new Chart(expenseChartCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#8D6E63', '#4DD0E1', '#F44336', '#9C27B0'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 11
+                            },
+                            color: '#555'
                         }
                     },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Porcentagem (%)',
-                                font: {
-                                    size: 14
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
                                 }
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
+                                if (context.parsed !== null) {
+                                    label += formatCurrency(context.parsed);
                                 }
+                                return label;
                             }
                         }
                     }
                 }
-            });
-        }
-        
-        // Atualiza a mensagem de saúde financeira
-        function updateFinancialHealthMessage() {
-            const { totalIncome, totalExpense, currentBalance } = updateSummary();
-            
-            let message = "";
-            let icon = "";
-            let healthClass = "health-neutral";
-            
-            // Se não há transações
-            if (transactions.length === 0) {
-                message = "Adicione transações para analisar sua saúde financeira";
-                icon = "fas fa-info-circle";
-                healthClass = "health-neutral";
             }
-            // Saldo negativo
-            else if (currentBalance < 0) {
-                message = "Cuidado! Seu saldo está negativo. Considere reduzir despesas ou aumentar rendas.";
-                icon = "fas fa-exclamation-triangle";
-                healthClass = "health-critical";
-            }
-            // Despesas > 75% da renda
-            else if (totalIncome > 0 && (totalExpense / totalIncome) > 0.75) {
-                message = "Atenção! Suas despesas estão acima de 75% da sua renda. Tente reduzir custos.";
-                icon = "fas fa-exclamation-circle";
-                healthClass = "health-warning";
-            }
-            // Despesas entre 50% e 75% da renda
-            else if (totalIncome > 0 && (totalExpense / totalIncome) > 0.5) {
-                message = "Sua saúde financeira está estável, mas você pode melhorar. Tente economizar mais.";
-                icon = "fas fa-balance-scale";
-                healthClass = "health-neutral";
-            }
-            // Situação saudável
-            else {
-                message = "Parabéns! Sua saúde financeira está excelente. Continue assim!";
-                icon = "fas fa-check-circle";
-                healthClass = "health-positive";
-            }
-            
-            // Atualizar o elemento HTML
-            financialHealthMessage.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
-            financialHealthMessage.className = `health-message ${healthClass}`;
+        });
+    }
+
+    // Atualizar gráfico de porcentagens (barras horizontais)
+    function updateSummaryChart(incomePercent, expensePercent, balancePercent) {
+        if (summaryChart) {
+            summaryChart.destroy();
         }
 
-        // Limpa os campos de entrada
-        function clearInputs() {
-            descriptionInput.value = '';
-            valueInput.value = '';
-            categoryInput.value = '';
-            descriptionInput.focus();
-            hideCategoryError();
-        }
-
-        // Formata o valor para moeda brasileira
-        function formatCurrency(value) {
-            return value.toLocaleString('pt-BR', { 
-                style: 'currency', 
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-        
-        // Formata o valor para CSV (sem símbolo de moeda)
-        function formatCurrencyForCSV(value) {
-            return value.toLocaleString('pt-BR', { 
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-        
-        // Exportar para CSV com organização correta
-        function exportToCSV() {
-            // Verificar se existem transações
-            if (transactions.length === 0) {
-                alert('Não há transações para exportar!');
-                return;
-            }
-            
-            // Cabeçalho do CSV com colunas organizadas
-            let csvContent = "Tipo;Descrição;Categoria;Valor;Paga?\n";
-            
-            // Ordenar transações por data (mais recentes primeiro)
-            const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
-            
-            // Adicionar cada transação
-            sortedTransactions.forEach(transaction => {
-                const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
-                // Remover quebras de linha e ponto-e-vírgula para evitar problemas
-                const description = transaction.description.replace(/[\n;]/g, ' '); 
-                const category = transaction.category;
-                const value = formatCurrencyForCSV(Math.abs(transaction.value));
-                // Apenas despesas têm informação de pagamento
-                const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
-                
-                // Adicionar linha ao CSV usando ponto-e-vírgula como separador
-                csvContent += `${type};"${description}";${category};${value};${paid}\n`;
-            });
-            
-            // Adicionar resumo financeiro
-            let totalIncome = 0;
-            let totalExpense = 0;
-            let totalPaid = 0;
-            let totalPending = 0;
-            
-            transactions.forEach(transaction => {
-                if (transaction.type === 'income') {
-                    totalIncome += transaction.value;
-                } else {
-                    const expenseValue = Math.abs(transaction.value);
-                    totalExpense += expenseValue;
-                    
-                    if (transaction.paga) {
-                        totalPaid += expenseValue;
-                    } else {
-                        totalPending += expenseValue;
+        summaryChart = new Chart(summaryChartCanvas, {
+            type: 'bar',
+            data: {
+                labels: ['Rendas', 'Gastos', 'Saldo'],
+                datasets: [{
+                    label: 'Porcentagem em relação à renda total',
+                    data: [incomePercent, expensePercent, balancePercent],
+                    backgroundColor: [
+                        'rgba(39, 174, 96, 0.7)',   // Verde para rendas
+                        'rgba(231, 76, 60, 0.7)',   // Vermelho para gastos
+                        'rgba(52, 152, 219, 0.7)'   // Azul para saldo
+                    ],
+                    borderColor: [
+                        'rgba(39, 174, 96, 1)',
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(52, 152, 219, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.parsed.x.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Porcentagem (%)',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
                     }
                 }
+            }
+        });
+    }
+    
+    // Atualiza a mensagem de saúde financeira
+    function updateFinancialHealthMessage() {
+        const { totalIncome, totalExpense, currentBalance } = updateSummary();
+        
+        let message = "";
+        let icon = "";
+        let healthClass = "health-neutral";
+        
+        // Se não há transações
+        if (transactions.length === 0) {
+            message = "Adicione transações para analisar sua saúde financeira";
+            icon = "fas fa-info-circle";
+            healthClass = "health-neutral";
+        }
+        // Saldo negativo
+        else if (currentBalance < 0) {
+            message = "Cuidado! Seu saldo está negativo. Considere reduzir despesas ou aumentar rendas.";
+            icon = "fas fa-exclamation-triangle";
+            healthClass = "health-critical";
+        }
+        // Despesas > 75% da renda
+        else if (totalIncome > 0 && (totalExpense / totalIncome) > 0.75) {
+            message = "Atenção! Suas despesas estão acima de 75% da sua renda. Tente reduzir custos.";
+            icon = "fas fa-exclamation-circle";
+            healthClass = "health-warning";
+        }
+        // Despesas entre 50% e 75% da renda
+        else if (totalIncome > 0 && (totalExpense / totalIncome) > 0.5) {
+            message = "Sua saúde financeira está estável, mas você pode melhorar. Tente economizar mais.";
+            icon = "fas fa-balance-scale";
+            healthClass = "health-neutral";
+        }
+        // Situação saudável
+        else {
+            message = "Parabéns! Sua saúde financeira está excelente. Continue assim!";
+            icon = "fas fa-check-circle";
+            healthClass = "health-positive";
+        }
+        
+        // Atualizar o elemento HTML
+        financialHealthMessage.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
+        financialHealthMessage.className = `health-message ${healthClass}`;
+    }
+
+    // Limpa os campos de entrada
+    function clearInputs() {
+        descriptionInput.value = '';
+        valueInput.value = '';
+        categoryInput.value = '';
+        descriptionInput.focus();
+        hideCategoryError();
+    }
+
+    // Formata o valor para moeda brasileira
+    function formatCurrency(value) {
+        return value.toLocaleString('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    
+    // Formata o valor para CSV (sem símbolo de moeda)
+    function formatCurrencyForCSV(value) {
+        return value.toLocaleString('pt-BR', { 
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    
+    // Exportar para CSV com organização correta
+    function exportToCSV() {
+        // Verificar se existem transações
+        if (transactions.length === 0) {
+            alert('Não há transações para exportar!');
+            return;
+        }
+        
+        // Cabeçalho do CSV com colunas organizadas
+        let csvContent = "Tipo;Descrição;Categoria;Valor;Paga?\n";
+        
+        // Ordenar transações por data (mais recentes primeiro)
+        const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
+        
+        // Adicionar cada transação
+        sortedTransactions.forEach(transaction => {
+            const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
+            // Remover quebras de linha e ponto-e-vírgula para evitar problemas
+            const description = transaction.description.replace(/[\n;]/g, ' '); 
+            const category = transaction.category;
+            const value = formatCurrencyForCSV(Math.abs(transaction.value));
+            // Apenas despesas têm informação de pagamento
+            const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
+            
+            // Adicionar linha ao CSV usando ponto-e-vírgula como separador
+            csvContent += `${type};"${description}";${category};${value};${paid}\n`;
+        });
+        
+        // Adicionar resumo financeiro
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let totalPaid = 0;
+        let totalPending = 0;
+        
+        transactions.forEach(transaction => {
+            if (transaction.type === 'income') {
+                totalIncome += transaction.value;
+            } else {
+                const expenseValue = Math.abs(transaction.value);
+                totalExpense += expenseValue;
+                
+                if (transaction.paga) {
+                    totalPaid += expenseValue;
+                } else {
+                    totalPending += expenseValue;
+                }
+            }
+        });
+        
+        const currentBalance = totalIncome - totalExpense;
+        
+        csvContent += "\n;;;;\n";
+        csvContent += `Resumo Financeiro;;;;\n`;
+        csvContent += `Renda Total;;;${formatCurrencyForCSV(totalIncome)}\n`;
+        csvContent += `Despesa Total;;;${formatCurrencyForCSV(totalExpense)}\n`;
+        csvContent += `Total Pago;;;${formatCurrencyForCSV(totalPaid)}\n`;
+        csvContent += `Total Pendente;;;${formatCurrencyForCSV(totalPending)}\n`;
+        csvContent += `Saldo Atual;;;${formatCurrencyForCSV(currentBalance)}\n`;
+        
+        // Criar link de download
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'transacoes_financeiras.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        notificationText.textContent = "Dados exportados para CSV com sucesso!";
+        showExportNotification();
+    }
+    
+    // Exportar dados para JSON
+    function exportToJSON() {
+        // Verificar se existem transações
+        if (transactions.length === 0) {
+            alert('Não há transações para exportar!');
+            return;
+        }
+        
+        // Criar objeto com os dados a serem exportados
+        const exportData = {
+            app: "Controle Financeiro",
+            version: "1.0",
+            timestamp: new Date().toISOString(),
+            transactions: transactions
+        };
+        
+        // Criar string JSON formatada
+        const jsonData = JSON.stringify(exportData, null, 2);
+        
+        // Criar blob e link de download
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dados-financeiros-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        notificationText.textContent = "Dados exportados para JSON com sucesso!";
+        showExportNotification();
+    }
+    
+    // Importar dados de um arquivo JSON
+    function importFromJSON(file, option) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                
+                // Validar a estrutura do arquivo
+                if (!data.transactions || !Array.isArray(data.transactions)) {
+                    throw new Error("Formato de arquivo inválido");
+                }
+                
+                // Processar os dados conforme a opção selecionada
+                if (option === "replace") {
+                    transactions = data.transactions;
+                } else { // merge
+                    // Mesclar transações, evitando duplicatas por ID
+                    const existingIds = transactions.map(t => t.id);
+                    const newTransactions = data.transactions.filter(t => !existingIds.includes(t.id));
+                    transactions = [...transactions, ...newTransactions];
+                }
+                
+                // Salvar e atualizar
+                saveTransactions();
+                updateUI();
+                
+                notificationText.textContent = `Dados importados com sucesso! (${data.transactions.length} transações)`;
+                showExportNotification();
+                
+                // Fechar o modal de importação
+                importOverlay.style.display = 'none';
+                
+            } catch (error) {
+                console.error("Erro ao importar dados:", error);
+                alert("Erro ao importar dados: " + error.message);
+            }
+        };
+        
+        reader.onerror = function() {
+            alert("Erro ao ler o arquivo");
+        };
+        
+        reader.readAsText(file);
+    }
+    
+    // Geração de imagem
+    async function generateImage() {
+        try {
+            const canvas = await html2canvas(financialWidgetContent, {
+                scale: 2,
+                useCORS: true,
+                logging: false
             });
-            
-            const currentBalance = totalIncome - totalExpense;
-            
-            csvContent += "\n;;;;\n";
-            csvContent += `Resumo Financeiro;;;;\n`;
-            csvContent += `Renda Total;;;${formatCurrencyForCSV(totalIncome)}\n`;
-            csvContent += `Despesa Total;;;${formatCurrencyForCSV(totalExpense)}\n`;
-            csvContent += `Total Pago;;;${formatCurrencyForCSV(totalPaid)}\n`;
-            csvContent += `Total Pendente;;;${formatCurrencyForCSV(totalPending)}\n`;
-            csvContent += `Saldo Atual;;;${formatCurrencyForCSV(currentBalance)}\n`;
-            
-            // Criar link de download
-            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+            const image = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'transacoes_financeiras.csv');
-            link.style.visibility = 'hidden';
+            link.href = image;
+            link.download = 'relatorio_financeiro.png';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
-            notificationText.textContent = "Dados exportados para CSV com sucesso!";
+            notificationText.textContent = "Imagem do relatório gerada com sucesso!";
             showExportNotification();
+        } catch (error) {
+            console.error("Erro ao gerar imagem:", error);
+            alert('Ocorreu um erro ao gerar a imagem. Tente novamente.');
         }
-        
-        // Exportar dados para JSON
-        function exportToJSON() {
+    }
+    
+    // Exportar para PDF com organização profissional
+    async function exportToPDF() {
+        try {
             // Verificar se existem transações
             if (transactions.length === 0) {
                 alert('Não há transações para exportar!');
                 return;
             }
             
-            // Criar objeto com os dados a serem exportados
-            const exportData = {
-                app: "Controle Financeiro",
-                version: "1.0",
-                timestamp: new Date().toISOString(),
-                transactions: transactions
-            };
+            // Criar novo documento PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
             
-            // Criar string JSON formatada
-            const jsonData = JSON.stringify(exportData, null, 2);
+            // Configurações iniciais
+            const margin = 15;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            let yPos = margin;
             
-            // Criar blob e link de download
-            const blob = new Blob([jsonData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `dados-financeiros-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Adicionar título com fundo colorido
+            pdf.setFillColor(44, 62, 80); // Cor de fundo: #2c3e50
+            pdf.rect(0, 0, pageWidth, 30, 'F');
             
-            notificationText.textContent = "Dados exportados para JSON com sucesso!";
-            showExportNotification();
-        }
-        
-        // Importar dados de um arquivo JSON
-        function importFromJSON(file, option) {
-            const reader = new FileReader();
+            pdf.setFontSize(20);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(255, 255, 255); // Texto branco
+            pdf.text('Relatório Financeiro', pageWidth / 2, 20, { align: 'center' });
+            yPos = 35;
             
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    // Validar a estrutura do arquivo
-                    if (!data.transactions || !Array.isArray(data.transactions)) {
-                        throw new Error("Formato de arquivo inválido");
-                    }
-                    
-                    // Processar os dados conforme a opção selecionada
-                    if (option === "replace") {
-                        transactions = data.transactions;
-                    } else { // merge
-                        // Mesclar transações, evitando duplicatas por ID
-                        const existingIds = transactions.map(t => t.id);
-                        const newTransactions = data.transactions.filter(t => !existingIds.includes(t.id));
-                        transactions = [...transactions, ...newTransactions];
-                    }
-                    
-                    // Salvar e atualizar
-                    saveTransactions();
-                    updateUI();
-                    
-                    notificationText.textContent = `Dados importados com sucesso! (${data.transactions.length} transações)`;
-                    showExportNotification();
-                    
-                    // Fechar o modal de importação
-                    importOverlay.style.display = 'none';
-                    
-                } catch (error) {
-                    console.error("Erro ao importar dados:", error);
-                    alert("Erro ao importar dados: " + error.message);
-                }
-            };
+            // Adicionar data
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(100, 100, 100); // Texto cinza
+            pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, yPos, { align: 'center' });
+            yPos += 15;
             
-            reader.onerror = function() {
-                alert("Erro ao ler o arquivo");
-            };
+            // Adicionar resumo com fundo
+            pdf.setFillColor(245, 247, 250); // Cor de fundo clara
+            pdf.rect(margin - 5, yPos - 5, pageWidth - margin*2 + 10, 100, 'F');
             
-            reader.readAsText(file);
-        }
-        
-        // Geração de imagem
-        async function generateImage() {
-            try {
-                const canvas = await html2canvas(financialWidgetContent, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-
-                const image = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = 'relatorio_financeiro.png';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                notificationText.textContent = "Imagem do relatório gerada com sucesso!";
-                showExportNotification();
-            } catch (error) {
-                console.error("Erro ao gerar imagem:", error);
-                alert('Ocorreu um erro ao gerar a imagem. Tente novamente.');
-            }
-        }
-        
-        // Exportar para PDF com organização profissional
-        async function exportToPDF() {
-            try {
-                // Verificar se existem transações
-                if (transactions.length === 0) {
-                    alert('Não há transações para exportar!');
-                    return;
-                }
-                
-                // Criar novo documento PDF
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                
-                // Configurações iniciais
-                const margin = 15;
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                let yPos = margin;
-                
-                // Adicionar título com fundo colorido
-                pdf.setFillColor(44, 62, 80); // Cor de fundo: #2c3e50
-                pdf.rect(0, 0, pageWidth, 30, 'F');
-                
-                pdf.setFontSize(20);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(255, 255, 255); // Texto branco
-                pdf.text('Relatório Financeiro', pageWidth / 2, 20, { align: 'center' });
-                yPos = 35;
-                
-                // Adicionar data
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(100, 100, 100); // Texto cinza
-                pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, yPos, { align: 'center' });
-                yPos += 15;
-                
-                // Adicionar resumo com fundo
-                pdf.setFillColor(245, 247, 250); // Cor de fundo clara
-                pdf.rect(margin - 5, yPos - 5, pageWidth - margin*2 + 10, 100, 'F');
-                
-                pdf.setFontSize(16);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(44, 62, 80); // Texto escuro
-                pdf.text('Resumo Financeiro', margin, yPos);
-                yPos += 10;
-                
-                // Calcular totais
-                let totalIncome = 0;
-                let totalExpense = 0;
-                let totalPaid = 0;
-                let totalPending = 0;
-                
-                transactions.forEach(transaction => {
-                    if (transaction.type === 'income') {
-                        totalIncome += transaction.value;
-                    } else {
-                        const expenseValue = Math.abs(transaction.value);
-                        totalExpense += expenseValue;
-                        
-                        if (transaction.paga) {
-                            totalPaid += expenseValue;
-                        } else {
-                            totalPending += expenseValue;
-                        }
-                    }
-                });
-                
-                const currentBalance = totalIncome - totalExpense;
-                const expensePercent = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
-                const balancePercent = totalIncome > 0 ? (currentBalance / totalIncome) * 100 : 0;
-                
-                // Adicionar valores
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text(`Renda Total: ${formatCurrency(totalIncome)}`, margin, yPos);
-                yPos += 8;
-                pdf.text(`Despesa Total: ${formatCurrency(totalExpense)} (${expensePercent.toFixed(1)}%)`, margin, yPos);
-                yPos += 8;
-                pdf.text(`Total Pago: ${formatCurrency(totalPaid)}`, margin, yPos);
-                yPos += 8;
-                pdf.text(`Total Pendente: ${formatCurrency(totalPending)}`, margin, yPos);
-                yPos += 8;
-                pdf.text(`Saldo Atual: ${formatCurrency(currentBalance)} (${balancePercent.toFixed(1)}%)`, margin, yPos);
-                yPos += 15;
-                
-                // Adicionar transações
-                pdf.setFontSize(16);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Transações', margin, yPos);
-                yPos += 10;
-                
-                // Cabeçalho da tabela
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setFillColor(44, 62, 80); // Cor de fundo escura
-                
-                // Posições ajustadas para caber no A4
-                const col1 = margin;          // Tipo (20mm)
-                const col2 = margin + 22;      // Descrição (70mm)
-                const col3 = margin + 92;      // Categoria (30mm)
-                const col4 = margin + 122;     // Valor (30mm)
-                const col5 = margin + 152;     // Paga? (20mm)
-                
-                // Desenhar fundo do cabeçalho
-                pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, 10, 'F');
-                
-                pdf.setTextColor(255, 255, 255); // Texto branco
-                pdf.text('Tipo', col1, yPos + 6);
-                pdf.text('Descrição', col2, yPos + 6);
-                pdf.text('Categoria', col3, yPos + 6);
-                pdf.text('Valor', col4, yPos + 6);
-                pdf.text('Paga?', col5, yPos + 6);
-                yPos += 12;
-                
-                // Adicionar transações
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(0, 0, 0); // Texto preto
-                
-                // Ordenar transações por data (mais recentes primeiro)
-                const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
-                
-                let rowCount = 0;
-                
-                sortedTransactions.forEach(transaction => {
-                    // Verificar se precisa de nova página
-                    if (yPos > pageHeight - 30) {
-                        pdf.addPage();
-                        yPos = margin;
-                        
-                        // Adicionar cabeçalho novamente na nova página
-                        pdf.setFontSize(12);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.setFillColor(44, 62, 80);
-                        pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, 10, 'F');
-                        pdf.setTextColor(255, 255, 255);
-                        pdf.text('Tipo', col1, yPos + 6);
-                        pdf.text('Descrição', col2, yPos + 6);
-                        pdf.text('Categoria', col3, yPos + 6);
-                        pdf.text('Valor', col4, yPos + 6);
-                        pdf.text('Paga?', col5, yPos + 6);
-                        yPos += 12;
-                        pdf.setFontSize(10);
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.setTextColor(0, 0, 0);
-                        rowCount = 0;
-                    }
-                    
-                    const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
-                    const description = transaction.description;
-                    const category = transaction.category;
-                    const value = formatCurrency(Math.abs(transaction.value));
-                    // Apenas despesas têm informação de pagamento
-                    const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
-                    
-                    // Alternar cores de fundo
-                    if (rowCount % 2 === 0) {
-                        pdf.setFillColor(248, 249, 250); // Fundo claro
-                    } else {
-                        pdf.setFillColor(255, 255, 255); // Fundo branco
-                    }
-                    
-                    // Quebrar descrição longa em múltiplas linhas
-                    const maxDescWidth = 70; // Largura máxima da descrição em mm
-                    const descLines = pdf.splitTextToSize(description, maxDescWidth);
-                    
-                    // Calcular altura necessária para esta linha
-                    const lineHeight = 4;
-                    const cellHeight = Math.max(10, descLines.length * lineHeight);
-                    
-                    // Desenhar fundo da linha
-                    pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, cellHeight, 'F');
-                    
-                    // Escrever tipo (centralizado verticalmente)
-                    pdf.text(type, col1, yPos + (cellHeight/2) - 2);
-                    
-                    // Escrever descrição (com quebra de linha e centralizada verticalmente)
-                    const descStartY = yPos + (cellHeight - (descLines.length * lineHeight)) / 2;
-                    for (let i = 0; i < descLines.length; i++) {
-                        pdf.text(descLines[i], col2, descStartY + (i * lineHeight));
-                    }
-                    
-                    // Escrever categoria (centralizada verticalmente)
-                    pdf.text(category, col3, yPos + (cellHeight/2) - 2);
-                    
-                    // Escrever valor (centralizada verticalmente)
-                    pdf.text(value, col4, yPos + (cellHeight/2) - 2);
-                    
-                    // Escrever status de pagamento (centralizada verticalmente)
-                    pdf.text(paid, col5, yPos + (cellHeight/2) - 2);
-                    
-                    // Linha divisória
-                    pdf.setDrawColor(200, 200, 200);
-                    pdf.setLineWidth(0.2);
-                    pdf.line(margin, yPos + cellHeight, pageWidth - margin, yPos + cellHeight);
-                    
-                    yPos += cellHeight + 2;
-                    rowCount++;
-                });
-                
-                // Salvar o PDF
-                pdf.save('relatorio_financeiro.pdf');
-                
-                notificationText.textContent = "Relatório PDF gerado com sucesso!";
-                showExportNotification();
-            } catch (error) {
-                console.error("Erro ao gerar PDF:", error);
-                alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
-            }
-        }
-        
-        // Mostrar notificação de exportação/importação
-        function showExportNotification() {
-            exportNotification.style.display = 'block';
-            setTimeout(() => {
-                exportNotification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Função para voltar ao topo com animação suave
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-        
-        // Verifica a posição de rolagem para mostrar/ocultar o botão
-        function toggleBackToTopButton() {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.add('visible');
-            } else {
-                backToTopBtn.classList.remove('visible');
-            }
-        }
-        
-        // Compartilhar via WhatsApp
-        function shareOnWhatsApp() {
-            // Verificar se existem transações
-            if (transactions.length === 0) {
-                alert('Adicione transações antes de compartilhar!');
-                return;
-            }
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(44, 62, 80); // Texto escuro
+            pdf.text('Resumo Financeiro', margin, yPos);
+            yPos += 10;
             
-            // Obter os dados resumidos
+            // Calcular totais
             let totalIncome = 0;
             let totalExpense = 0;
             let totalPaid = 0;
@@ -2245,120 +2160,330 @@
             });
             
             const currentBalance = totalIncome - totalExpense;
+            const expensePercent = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
+            const balancePercent = totalIncome > 0 ? (currentBalance / totalIncome) * 100 : 0;
             
-            // Montar a mensagem para compartilhamento
-            let message = `📊 *Resumo Financeiro* 📊\n\n`;
-            message += `✅ *Renda Total:* ${formatCurrency(totalIncome)}\n`;
-            message += `💸 *Despesa Total:* ${formatCurrency(totalExpense)}\n`;
-            message += `💰 *Saldo Atual:* ${formatCurrency(currentBalance)}\n`;
-            message += `✔️ *Total Pago:* ${formatCurrency(totalPaid)}\n`;
-            message += `⏳ *Total Pendente:* ${formatCurrency(totalPending)}\n\n`;
-            message += `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_\n\n`;
-            message += `👉 *Dicas de economia:*\n`;
-            message += `- Revise suas despesas mensais\n`;
-            message += `- Estabeleça metas de economia\n`;
-            message += `- Priorize o pagamento de dívidas\n`;
+            // Adicionar valores
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(`Renda Total: ${formatCurrency(totalIncome)}`, margin, yPos);
+            yPos += 8;
+            pdf.text(`Despesa Total: ${formatCurrency(totalExpense)} (${expensePercent.toFixed(1)}%)`, margin, yPos);
+            yPos += 8;
+            pdf.text(`Total Pago: ${formatCurrency(totalPaid)}`, margin, yPos);
+            yPos += 8;
+            pdf.text(`Total Pendente: ${formatCurrency(totalPending)}`, margin, yPos);
+            yPos += 8;
+            pdf.text(`Saldo Atual: ${formatCurrency(currentBalance)} (${balancePercent.toFixed(1)}%)`, margin, yPos);
+            yPos += 15;
             
-            // Montar o link do WhatsApp
-            const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            // Adicionar transações
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Transações', margin, yPos);
+            yPos += 10;
             
-            // Abrir nova janela/tab para compartilhamento
-            window.open(whatsappLink, '_blank');
+            // Cabeçalho da tabela
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFillColor(44, 62, 80); // Cor de fundo escura
             
-            notificationText.textContent = "Compartilhando resumo via WhatsApp...";
+            // Posições ajustadas para caber no A4
+            const col1 = margin;          // Tipo (20mm)
+            const col2 = margin + 22;      // Descrição (70mm)
+            const col3 = margin + 92;      // Categoria (30mm)
+            const col4 = margin + 122;     // Valor (30mm)
+            const col5 = margin + 152;     // Paga? (20mm)
+            
+            // Desenhar fundo do cabeçalho
+            pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, 10, 'F');
+            
+            pdf.setTextColor(255, 255, 255); // Texto branco
+            pdf.text('Tipo', col1, yPos + 6);
+            pdf.text('Descrição', col2, yPos + 6);
+            pdf.text('Categoria', col3, yPos + 6);
+            pdf.text('Valor', col4, yPos + 6);
+            pdf.text('Paga?', col5, yPos + 6);
+            yPos += 12;
+            
+            // Adicionar transações
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(0, 0, 0); // Texto preto
+            
+            // Ordenar transações por data (mais recentes primeiro)
+            const sortedTransactions = [...transactions].sort((a, b) => b.id - a.id);
+            
+            let rowCount = 0;
+            
+            sortedTransactions.forEach(transaction => {
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 30) {
+                    pdf.addPage();
+                    yPos = margin;
+                    
+                    // Adicionar cabeçalho novamente na nova página
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFillColor(44, 62, 80);
+                    pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, 10, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.text('Tipo', col1, yPos + 6);
+                    pdf.text('Descrição', col2, yPos + 6);
+                    pdf.text('Categoria', col3, yPos + 6);
+                    pdf.text('Valor', col4, yPos + 6);
+                    pdf.text('Paga?', col5, yPos + 6);
+                    yPos += 12;
+                    pdf.setFontSize(10);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(0, 0, 0);
+                    rowCount = 0;
+                }
+                
+                const type = transaction.type === 'income' ? 'Renda' : 'Despesa';
+                const description = transaction.description;
+                const category = transaction.category;
+                const value = formatCurrency(Math.abs(transaction.value));
+                // Apenas despesas têm informação de pagamento
+                const paid = transaction.type === 'expense' ? (transaction.paga ? 'Sim' : 'Não') : '';
+                
+                // Alternar cores de fundo
+                if (rowCount % 2 === 0) {
+                    pdf.setFillColor(248, 249, 250); // Fundo claro
+                } else {
+                    pdf.setFillColor(255, 255, 255); // Fundo branco
+                }
+                
+                // Quebrar descrição longa em múltiplas linhas
+                const maxDescWidth = 70; // Largura máxima da descrição em mm
+                const descLines = pdf.splitTextToSize(description, maxDescWidth);
+                
+                // Calcular altura necessária para esta linha
+                const lineHeight = 4;
+                const cellHeight = Math.max(10, descLines.length * lineHeight);
+                
+                // Desenhar fundo da linha
+                pdf.rect(margin - 2, yPos - 2, pageWidth - margin*2 + 4, cellHeight, 'F');
+                
+                // Escrever tipo (centralizado verticalmente)
+                pdf.text(type, col1, yPos + (cellHeight/2) - 2);
+                
+                // Escrever descrição (com quebra de linha e centralizada verticalmente)
+                const descStartY = yPos + (cellHeight - (descLines.length * lineHeight)) / 2;
+                for (let i = 0; i < descLines.length; i++) {
+                    pdf.text(descLines[i], col2, descStartY + (i * lineHeight));
+                }
+                
+                // Escrever categoria (centralizada verticalmente)
+                pdf.text(category, col3, yPos + (cellHeight/2) - 2);
+                
+                // Escrever valor (centralizada verticalmente)
+                pdf.text(value, col4, yPos + (cellHeight/2) - 2);
+                
+                // Escrever status de pagamento (centralizada verticalmente)
+                pdf.text(paid, col5, yPos + (cellHeight/2) - 2);
+                
+                // Linha divisória
+                pdf.setDrawColor(200, 200, 200);
+                pdf.setLineWidth(0.2);
+                pdf.line(margin, yPos + cellHeight, pageWidth - margin, yPos + cellHeight);
+                
+                yPos += cellHeight + 2;
+                rowCount++;
+            });
+            
+            // Salvar o PDF
+            pdf.save('relatorio_financeiro.pdf');
+            
+            notificationText.textContent = "Relatório PDF gerado com sucesso!";
             showExportNotification();
+        } catch (error) {
+            console.error("Erro ao gerar PDF:", error);
+            alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
         }
+    }
+    
+    // Mostrar notificação de exportação/importação
+    function showExportNotification() {
+        exportNotification.style.display = 'block';
+        setTimeout(() => {
+            exportNotification.style.display = 'none';
+        }, 3000);
+    }
+    
+    // Função para voltar ao topo com animação suave
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+    
+    // Verifica a posição de rolagem para mostrar/ocultar o botão
+    function toggleBackToTopButton() {
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('visible');
+        } else {
+            backToTopBtn.classList.remove('visible');
+        }
+    }
+    
+    // Compartilhar via WhatsApp
+    function shareOnWhatsApp() {
+        // Verificar se existem transações
+        if (transactions.length === 0) {
+            alert('Adicione transações antes de compartilhar!');
+            return;
+        }
+        
+        // Obter os dados resumidos
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let totalPaid = 0;
+        let totalPending = 0;
+        
+        transactions.forEach(transaction => {
+            if (transaction.type === 'income') {
+                totalIncome += transaction.value;
+            } else {
+                const expenseValue = Math.abs(transaction.value);
+                totalExpense += expenseValue;
+                
+                if (transaction.paga) {
+                    totalPaid += expenseValue;
+                } else {
+                    totalPending += expenseValue;
+                }
+            }
+        });
+        
+        const currentBalance = totalIncome - totalExpense;
+        
+        // Montar a mensagem para compartilhamento
+        let message = `📊 *Resumo Financeiro* 📊\n\n`;
+        message += `✅ *Renda Total:* ${formatCurrency(totalIncome)}\n`;
+        message += `💸 *Despesa Total:* ${formatCurrency(totalExpense)}\n`;
+        message += `💰 *Saldo Atual:* ${formatCurrency(currentBalance)}\n`;
+        message += `✔️ *Total Pago:* ${formatCurrency(totalPaid)}\n`;
+        message += `⏳ *Total Pendente:* ${formatCurrency(totalPending)}\n\n`;
+        message += `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_\n\n`;
+        message += `👉 *Dicas de economia:*\n`;
+        message += `- Revise suas despesas mensais\n`;
+        message += `- Estabeleça metas de economia\n`;
+        message += `- Priorize o pagamento de dívidas\n`;
+        
+        // Montar o link do WhatsApp
+        const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        
+        // Abrir nova janela/tab para compartilhamento
+        window.open(whatsappLink, '_blank');
+        
+        notificationText.textContent = "Compartilhando resumo via WhatsApp...";
+        showExportNotification();
+    }
 
-        // --- Event Listeners ---
-        addIncomeBtn.addEventListener('click', () => {
-            addTransaction('income');
+    // --- Event Listeners ---
+    addIncomeBtn.addEventListener('click', () => {
+        addTransaction('income');
+    });
+    
+    addExpenseBtn.addEventListener('click', () => {
+        addTransaction('expense');
+    });
+    
+    generateImageBtn.addEventListener('click', generateImage);
+    exportCsvBtn.addEventListener('click', exportToCSV);
+    exportPdfBtn.addEventListener('click', exportToPDF);
+    exportJsonBtn.addEventListener('click', exportToJSON);
+    updateBtn.addEventListener('click', updateTransaction);
+    cancelBtn.addEventListener('click', cancelEditMode);
+    shareWhatsappBtn.addEventListener('click', shareOnWhatsApp);
+    
+    // Botões mobile
+    mobileImageBtn.addEventListener('click', generateImage);
+    mobileCsvBtn.addEventListener('click', exportToCSV);
+    mobilePdfBtn.addEventListener('click', exportToPDF);
+    mobileJsonBtn.addEventListener('click', exportToJSON);
+    mobileImportBtn.addEventListener('click', () => {
+        fileNameDisplay.textContent = "Nenhum arquivo selecionado";
+        confirmImportBtn.disabled = true;
+        importOverlay.style.display = 'flex';
+    });
+    mobileWhatsappBtn.addEventListener('click', shareOnWhatsApp);
+    
+    // Importação de dados
+    importDataBtn.addEventListener('click', () => {
+        fileNameDisplay.textContent = "Nenhum arquivo selecionado";
+        confirmImportBtn.disabled = true;
+        importOverlay.style.display = 'flex';
+    });
+    
+    closeImportModal.addEventListener('click', () => {
+        importOverlay.style.display = 'none';
+    });
+    
+    cancelImportBtn.addEventListener('click', () => {
+        importOverlay.style.display = 'none';
+    });
+    
+    // Ao mudar a categoria, esconder qualquer erro
+    categoryInput.addEventListener('change', hideCategoryError);
+    
+    // Opções de importação
+    document.querySelectorAll('input[name="import-option"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            importOption = e.target.value;
         });
-        
-        addExpenseBtn.addEventListener('click', () => {
-            addTransaction('expense');
-        });
-        
-        generateImageBtn.addEventListener('click', generateImage);
-        exportCsvBtn.addEventListener('click', exportToCSV);
-        exportPdfBtn.addEventListener('click', exportToPDF);
-        exportJsonBtn.addEventListener('click', exportToJSON);
-        updateBtn.addEventListener('click', updateTransaction);
-        cancelBtn.addEventListener('click', cancelEditMode);
-        shareWhatsappBtn.addEventListener('click', shareOnWhatsApp);
-        
-        // Importação de dados
-        importDataBtn.addEventListener('click', () => {
+    });
+    
+    // Seleção de arquivo para importação
+    importFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            fileNameDisplay.textContent = file.name;
+            confirmImportBtn.disabled = false;
+        } else {
             fileNameDisplay.textContent = "Nenhum arquivo selecionado";
             confirmImportBtn.disabled = true;
-            importOverlay.style.display = 'flex';
-        });
-        
-        closeImportModal.addEventListener('click', () => {
-            importOverlay.style.display = 'none';
-        });
-        
-        cancelImportBtn.addEventListener('click', () => {
-            importOverlay.style.display = 'none';
-        });
-        
-        // Ao mudar a categoria, esconder qualquer erro
-        categoryInput.addEventListener('change', hideCategoryError);
-        
-        // Opções de importação
-        document.querySelectorAll('input[name="import-option"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                importOption = e.target.value;
-            });
-        });
-        
-        // Seleção de arquivo para importação
-        importFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                fileNameDisplay.textContent = file.name;
-                confirmImportBtn.disabled = false;
-            } else {
-                fileNameDisplay.textContent = "Nenhum arquivo selecionado";
-                confirmImportBtn.disabled = true;
-            }
-        });
-        
-        // Confirmação de importação
-        confirmImportBtn.addEventListener('click', () => {
-            const file = importFileInput.files[0];
-            if (file) {
-                importFromJSON(file, importOption);
-            }
-        });
-        
-        // Botão voltar ao topo
-        backToTopBtn.addEventListener('click', scrollToTop);
-        window.addEventListener('scroll', toggleBackToTopButton);
-
-        // Adicionar transações de exemplo
-        function addSampleData() {
-            if (transactions.length === 0) {
-                transactions = [
-                    { id: Date.now(), description: "Salário", category: "Salário", value: 5000, type: "income" },
-                    { id: Date.now(), description: "Freelance", category: "Freelance", value: 1500, type: "income" },
-                    { id: Date.now(), description: "Aluguel", category: "Moradia", value: -1200, type: "expense", paga: false },
-                    { id: Date.now(), description: "Supermercado", category: "Alimentação", value: -450, type: "expense", paga: true },
-                    { id: Date.now(), description: "Transporte", category: "Transporte", value: -300, type: "expense", paga: false },
-                    { id: Date.now(), description: "Cinema", category: "Lazer", value: -150, type: "expense", paga: true }
-                ];
-                saveTransactions();
-                updateUI();
-            }
         }
+    });
+    
+    // Confirmação de importação
+    confirmImportBtn.addEventListener('click', () => {
+        const file = importFileInput.files[0];
+        if (file) {
+            importFromJSON(file, importOption);
+        }
+    });
+    
+    // Botão voltar ao topo
+    backToTopBtn.addEventListener('click', scrollToTop);
+    window.addEventListener('scroll', toggleBackToTopButton);
 
-        // Carrega as transações e atualiza a UI ao carregar a página
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTransactions();
-            addSampleData();
-            
-            // Inicializar o botão de voltar ao topo
-            toggleBackToTopButton();
-        });
-    </script>
+    // Adicionar transações de exemplo
+    function addSampleData() {
+        if (transactions.length === 0) {
+            transactions = [
+                { id: Date.now(), description: "Salário", category: "Salário", value: 5000, type: "income" },
+                { id: Date.now(), description: "Freelance", category: "Freelance", value: 1500, type: "income" },
+                { id: Date.now(), description: "Aluguel", category: "Moradia", value: -1200, type: "expense", paga: false },
+                { id: Date.now(), description: "Supermercado", category: "Alimentação", value: -450, type: "expense", paga: true },
+                { id: Date.now(), description: "Transporte", category: "Transporte", value: -300, type: "expense", paga: false },
+                { id: Date.now(), description: "Cinema", category: "Lazer", value: -150, type: "expense", paga: true }
+            ];
+            saveTransactions();
+            updateUI();
+        }
+    }
+
+    // Carrega as transações e atualiza a UI ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTransactions();
+        addSampleData();
+        
+        // Inicializar o botão de voltar ao topo
+        toggleBackToTopButton();
+    });
+</script>
 </body>
 </html>
