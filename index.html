@@ -286,7 +286,7 @@
         }
         
         #current-balance {
-            color: #3498db;
+            color: #3498db; /* Cor padrão (azul) */
         }
         
         #total-paid {
@@ -695,8 +695,8 @@
         .collapsible-content {
             background: #f8f9fa;
             padding: 20px;
-            max-height: 1000px;
-            overflow: hidden;
+            max-height: 5000px; /* Aumentado para acomodar mais transações */
+            overflow-y: auto;  /* Adicionado para permitir rolagem */
             transition: max-height 0.5s ease, padding 0.5s ease;
         }
         
@@ -1454,6 +1454,15 @@
             totalPaidElem.textContent = formatCurrency(totalPaid);
             totalPendingElem.textContent = formatCurrency(totalPending);
             
+            // Altera a cor do saldo atual conforme o valor
+            if (currentBalance > 0) {
+                currentBalanceElem.style.color = '#27ae60'; // Verde
+            } else if (currentBalance < 0) {
+                currentBalanceElem.style.color = '#e74c3c'; // Vermelho
+            } else {
+                currentBalanceElem.style.color = '#3498db'; // Azul (padrão)
+            }
+            
             // Retornar os valores para uso na mensagem de saúde financeira
             return { totalIncome, totalExpense, currentBalance };
         }
@@ -2148,10 +2157,10 @@
                     // Escrever categoria (centralizada verticalmente)
                     pdf.text(category, col3, yPos + (cellHeight/2) - 2);
                     
-                    // Escrever valor (centralizado verticalmente)
+                    // Escrever valor (centralizada verticalmente)
                     pdf.text(value, col4, yPos + (cellHeight/2) - 2);
                     
-                    // Escrever status de pagamento (centralizado verticalmente)
+                    // Escrever status de pagamento (centralizada verticalmente)
                     pdf.text(paid, col5, yPos + (cellHeight/2) - 2);
                     
                     // Linha divisória
