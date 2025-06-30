@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro com Seções Recolhíveis</title>
+    <title>Controle Financeiro com Transações Recolhíveis</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -664,7 +664,7 @@
             to { opacity: 0; }
         }
         
-        /* Novos estilos para seções recolhíveis */
+        /* Estilos para seção de transações recolhível */
         .collapsible-section {
             margin-bottom: 15px;
             border-radius: 12px;
@@ -722,7 +722,7 @@
             margin-left: 8px;
         }
         
-        /* Esconde as seções recolhíveis em desktop */
+        /* Esconde a seção recolhível em desktop */
         @media (min-width: 769px) {
             .collapsible-section {
                 display: block !important;
@@ -1051,41 +1051,30 @@
             </div>
         </div>
 
-        <!-- Seção de Resumo Recolhível -->
-        <div class="collapsible-section" id="summary-section">
-            <div class="collapsible-header">
-                <div>
-                    <i class="fas fa-chart-pie"></i> Resumo Financeiro 
-                    <span class="section-indicator" id="summary-indicator">5</span>
-                </div>
-                <i class="fas fa-chevron-down"></i>
+        <!-- Resumo Financeiro (sem recolhível) -->
+        <div class="summary-section">
+            <div class="summary-item">
+                <h3><i class="fas fa-arrow-up"></i> Renda Total:</h3>
+                <p id="total-income">R$ 0.00</p>
             </div>
-            <div class="collapsible-content">
-                <div class="summary-section">
-                    <div class="summary-item">
-                        <h3><i class="fas fa-arrow-up"></i> Renda Total:</h3>
-                        <p id="total-income">R$ 0.00</p>
-                    </div>
-                    <div class="summary-item">
-                        <h3><i class="fas fa-arrow-down"></i> Despesa Total:</h3>
-                        <p id="total-expense">R$ 0.00</p>
-                    </div>
-                    <div class="summary-item">
-                        <h3><i class="fas fa-balance-scale"></i> Saldo Atual:</h3>
-                        <p id="current-balance">R$ 0.00</p>
-                    </div>
-                    <div class="summary-item">
-                        <h3><i class="fas fa-check-circle"></i> Total Pago:</h3>
-                        <p id="total-paid">R$ 0.00</p>
-                    </div>
-                    <div class="summary-item">
-                        <h3><i class="fas fa-clock"></i> Total Pendente:</h3>
-                        <p id="total-pending">R$ 0.00</p>
-                    </div>
-                </div>
+            <div class="summary-item">
+                <h3><i class="fas fa-arrow-down"></i> Despesa Total:</h3>
+                <p id="total-expense">R$ 0.00</p>
+            </div>
+            <div class="summary-item">
+                <h3><i class="fas fa-balance-scale"></i> Saldo Atual:</h3>
+                <p id="current-balance">R$ 0.00</p>
+            </div>
+            <div class="summary-item">
+                <h3><i class="fas fa-check-circle"></i> Total Pago:</h3>
+                <p id="total-paid">R$ 0.00</p>
+            </div>
+            <div class="summary-item">
+                <h3><i class="fas fa-clock"></i> Total Pendente:</h3>
+                <p id="total-pending">R$ 0.00</p>
             </div>
         </div>
-        
+
         <!-- Seção de Transações Recolhível -->
         <div class="collapsible-section" id="transactions-section">
             <div class="collapsible-header">
@@ -1110,13 +1099,14 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- As transações serão inseridas aqui via JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Gráficos (não recolhíveis) -->
+        <!-- Gráficos -->
         <div class="charts-section">
             <div class="section-title"><i class="fas fa-chart-pie"></i> Gráficos de Finanças</div>
             <div class="charts-container">
@@ -1203,6 +1193,7 @@
         const importFileInput = document.getElementById('import-file-input');
         const fileNameDisplay = document.getElementById('file-name-display');
         const financialHealthMessage = document.getElementById('financial-health-message');
+        const transactionsIndicator = document.getElementById('transactions-indicator');
         
         // Atualizar data atual
         const now = new Date();
@@ -1430,7 +1421,7 @@
             renderTransactionsTable();
             updateCharts();
             updateFinancialHealthMessage();
-            updateSectionIndicators(); // Atualiza os contadores das seções
+            updateTransactionsIndicator();
         }
 
         // Atualiza os totais de renda, despesa e saldo
@@ -1465,6 +1456,11 @@
             
             // Retornar os valores para uso na mensagem de saúde financeira
             return { totalIncome, totalExpense, currentBalance };
+        }
+
+        // Atualiza o indicador de transações
+        function updateTransactionsIndicator() {
+            transactionsIndicator.textContent = transactions.length;
         }
 
         // Renderiza as transações na tabela
@@ -1759,15 +1755,6 @@
             // Atualizar o elemento HTML
             financialHealthMessage.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
             financialHealthMessage.className = `health-message ${healthClass}`;
-        }
-
-        // Atualiza os indicadores de quantidade nas seções recolhíveis
-        function updateSectionIndicators() {
-            const summaryIndicator = document.getElementById('summary-indicator');
-            const transactionsIndicator = document.getElementById('transactions-indicator');
-            
-            summaryIndicator.textContent = '5'; // 5 cards de resumo
-            transactionsIndicator.textContent = transactions.length;
         }
 
         // Limpa os campos de entrada
@@ -2272,37 +2259,21 @@
             }
         }
 
-        // Novo código para controle das seções recolhíveis
+        // Configuração das seções recolhíveis
         function setupCollapsibleSections() {
-            // Referências para as seções recolhíveis
-            const summarySection = document.getElementById('summary-section');
             const transactionsSection = document.getElementById('transactions-section');
-            const summaryHeader = summarySection.querySelector('.collapsible-header');
             const transactionsHeader = transactionsSection.querySelector('.collapsible-header');
-            const summaryIndicator = document.getElementById('summary-indicator');
-            const transactionsIndicator = document.getElementById('transactions-indicator');
             
-            // Função para alternar o estado de uma seção
+            // Função para alternar o estado da seção
             function toggleSection(section) {
                 section.classList.toggle('collapsed');
             }
             
-            // Adiciona eventos aos cabeçalhos
-            summaryHeader.addEventListener('click', () => toggleSection(summarySection));
+            // Adiciona evento ao cabeçalho
             transactionsHeader.addEventListener('click', () => toggleSection(transactionsSection));
             
-            // Atualiza os indicadores de quantidade
-            function updateSectionIndicators() {
-                summaryIndicator.textContent = '5'; // 5 cards de resumo
-                transactionsIndicator.textContent = transactions.length;
-            }
-            
-            // Inicializa os indicadores
-            updateSectionIndicators();
-            
-            // Recolhe as seções por padrão em dispositivos móveis
+            // Recolhe a seção por padrão em dispositivos móveis
             if (window.innerWidth <= 768) {
-                summarySection.classList.add('collapsed');
                 transactionsSection.classList.add('collapsed');
             }
         }
