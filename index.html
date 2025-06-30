@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro Completo</title>
+    <title>Controle Financeiro com Seções Recolhíveis</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -433,7 +433,6 @@
             font-size: 0.85em;
         }
         
-        /* Nova seção de saúde financeira */
         .financial-health-section {
             background: #f8f9fa;
             padding: 20px;
@@ -665,6 +664,79 @@
             to { opacity: 0; }
         }
         
+        /* Novos estilos para seções recolhíveis */
+        .collapsible-section {
+            margin-bottom: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .collapsible-header {
+            background: linear-gradient(135deg, #2c3e50, #1a2a6c);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .collapsible-header:hover {
+            background: linear-gradient(135deg, #34495e, #1a2a6c);
+        }
+        
+        .collapsible-header i {
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-content {
+            background: #f8f9fa;
+            padding: 20px;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+        
+        .collapsed .collapsible-content {
+            max-height: 0;
+            padding: 0 20px;
+        }
+        
+        .collapsed .collapsible-header i {
+            transform: rotate(180deg);
+        }
+        
+        .section-indicator {
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        
+        /* Esconde as seções recolhíveis em desktop */
+        @media (min-width: 769px) {
+            .collapsible-section {
+                display: block !important;
+            }
+            .collapsible-header {
+                display: none;
+            }
+            .collapsible-content {
+                max-height: none !important;
+                padding: 20px !important;
+            }
+        }
+        
+        /* Estilos responsivos */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -979,47 +1051,72 @@
             </div>
         </div>
 
-        <div class="summary-section">
-            <div class="summary-item">
-                <h3><i class="fas fa-arrow-up"></i> Renda Total:</h3>
-                <p id="total-income">R$ 0.00</p>
+        <!-- Seção de Resumo Recolhível -->
+        <div class="collapsible-section" id="summary-section">
+            <div class="collapsible-header">
+                <div>
+                    <i class="fas fa-chart-pie"></i> Resumo Financeiro 
+                    <span class="section-indicator" id="summary-indicator">5</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
             </div>
-            <div class="summary-item">
-                <h3><i class="fas fa-arrow-down"></i> Despesa Total:</h3>
-                <p id="total-expense">R$ 0.00</p>
+            <div class="collapsible-content">
+                <div class="summary-section">
+                    <div class="summary-item">
+                        <h3><i class="fas fa-arrow-up"></i> Renda Total:</h3>
+                        <p id="total-income">R$ 0.00</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3><i class="fas fa-arrow-down"></i> Despesa Total:</h3>
+                        <p id="total-expense">R$ 0.00</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3><i class="fas fa-balance-scale"></i> Saldo Atual:</h3>
+                        <p id="current-balance">R$ 0.00</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3><i class="fas fa-check-circle"></i> Total Pago:</h3>
+                        <p id="total-paid">R$ 0.00</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3><i class="fas fa-clock"></i> Total Pendente:</h3>
+                        <p id="total-pending">R$ 0.00</p>
+                    </div>
+                </div>
             </div>
-            <div class="summary-item">
-                <h3><i class="fas fa-balance-scale"></i> Saldo Atual:</h3>
-                <p id="current-balance">R$ 0.00</p>
+        </div>
+        
+        <!-- Seção de Transações Recolhível -->
+        <div class="collapsible-section" id="transactions-section">
+            <div class="collapsible-header">
+                <div>
+                    <i class="fas fa-list"></i> Detalhes das Transações
+                    <span class="section-indicator" id="transactions-indicator">0</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
             </div>
-            <div class="summary-item">
-                <h3><i class="fas fa-check-circle"></i> Total Pago:</h3>
-                <p id="total-paid">R$ 0.00</p>
-            </div>
-            <div class="summary-item">
-                <h3><i class="fas fa-clock"></i> Total Pendente:</h3>
-                <p id="total-pending">R$ 0.00</p>
+            <div class="collapsible-content">
+                <div class="data-section">
+                    <div class="section-title"><i class="fas fa-list"></i> Detalhes das Transações</div>
+                    <table id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Paga?</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="data-section">
-            <div class="section-title"><i class="fas fa-list"></i> Detalhes das Transações</div>
-            <table id="transactions-table">
-                <thead>
-                    <tr>
-                        <th>Tipo</th>
-                        <th>Descrição</th>
-                        <th>Categoria</th>
-                        <th>Valor</th>
-                        <th>Paga?</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-
+        <!-- Gráficos (não recolhíveis) -->
         <div class="charts-section">
             <div class="section-title"><i class="fas fa-chart-pie"></i> Gráficos de Finanças</div>
             <div class="charts-container">
@@ -1038,7 +1135,7 @@
             </div>
         </div>
         
-        <!-- Nova seção de saúde financeira -->
+        <!-- Saúde Financeira -->
         <div class="financial-health-section">
             <div class="section-title"><i class="fas fa-heartbeat"></i> Saúde Financeira</div>
             <div class="health-message" id="financial-health-message">
@@ -1047,6 +1144,7 @@
             </div>
         </div>
 
+        <!-- Exportação de dados -->
         <div class="export-section">
             <button id="generate-image" class="btn btn-image">
                 <i class="fas fa-camera"></i> Gerar Imagem do Relatório
@@ -1331,7 +1429,8 @@
             updateSummary();
             renderTransactionsTable();
             updateCharts();
-            updateFinancialHealthMessage(); // Atualiza a mensagem de saúde financeira
+            updateFinancialHealthMessage();
+            updateSectionIndicators(); // Atualiza os contadores das seções
         }
 
         // Atualiza os totais de renda, despesa e saldo
@@ -1660,6 +1759,15 @@
             // Atualizar o elemento HTML
             financialHealthMessage.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
             financialHealthMessage.className = `health-message ${healthClass}`;
+        }
+
+        // Atualiza os indicadores de quantidade nas seções recolhíveis
+        function updateSectionIndicators() {
+            const summaryIndicator = document.getElementById('summary-indicator');
+            const transactionsIndicator = document.getElementById('transactions-indicator');
+            
+            summaryIndicator.textContent = '5'; // 5 cards de resumo
+            transactionsIndicator.textContent = transactions.length;
         }
 
         // Limpa os campos de entrada
@@ -2164,10 +2272,46 @@
             }
         }
 
+        // Novo código para controle das seções recolhíveis
+        function setupCollapsibleSections() {
+            // Referências para as seções recolhíveis
+            const summarySection = document.getElementById('summary-section');
+            const transactionsSection = document.getElementById('transactions-section');
+            const summaryHeader = summarySection.querySelector('.collapsible-header');
+            const transactionsHeader = transactionsSection.querySelector('.collapsible-header');
+            const summaryIndicator = document.getElementById('summary-indicator');
+            const transactionsIndicator = document.getElementById('transactions-indicator');
+            
+            // Função para alternar o estado de uma seção
+            function toggleSection(section) {
+                section.classList.toggle('collapsed');
+            }
+            
+            // Adiciona eventos aos cabeçalhos
+            summaryHeader.addEventListener('click', () => toggleSection(summarySection));
+            transactionsHeader.addEventListener('click', () => toggleSection(transactionsSection));
+            
+            // Atualiza os indicadores de quantidade
+            function updateSectionIndicators() {
+                summaryIndicator.textContent = '5'; // 5 cards de resumo
+                transactionsIndicator.textContent = transactions.length;
+            }
+            
+            // Inicializa os indicadores
+            updateSectionIndicators();
+            
+            // Recolhe as seções por padrão em dispositivos móveis
+            if (window.innerWidth <= 768) {
+                summarySection.classList.add('collapsed');
+                transactionsSection.classList.add('collapsed');
+            }
+        }
+
         // Carrega as transações e atualiza a UI ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
             loadTransactions();
             addSampleData();
+            setupCollapsibleSections();
         });
     </script>
 </body>
