@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro com WhatsApp</title>
+    <title>Controle Financeiro Pessoal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -243,7 +243,6 @@
             justify-content: center;
         }
         
-        /* NOVO BOTÃO WHATSAPP */
         .btn-whatsapp {
             background: linear-gradient(to right, #25D366, #128C7E);
             width: 100%;
@@ -312,39 +311,59 @@
             color: #2c3e50;
         }
         
-        .data-section {
+        /* NOVA SEÇÃO DE TRANSAÇÕES REFORMULADA */
+        .transactions-section {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             margin-bottom: 30px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         
-        .section-title {
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .transactions-title {
             color: #2c3e50;
             font-size: 1.1em;
             font-weight: 600;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .data-section table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+        .transactions-count {
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em;
+            margin-left: 8px;
         }
         
-        .data-section th,
-        .data-section td {
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .transactions-table th,
+        .transactions-table td {
             padding: 12px 10px;
             text-align: center;
             border-bottom: 1px solid #ecf0f1;
             font-size: 0.9em;
         }
         
-        .data-section th {
+        .transactions-table th {
             background-color: #2c3e50;
             color: white;
             font-weight: 500;
@@ -352,15 +371,15 @@
             font-size: 0.80em;
         }
         
-        .data-section td {
+        .transactions-table td {
             color: #34495e;
         }
         
-        .data-section tbody tr:nth-child(even) {
+        .transactions-table tbody tr:nth-child(even) {
             background-color: #f8f9fa;
         }
         
-        .data-section tbody tr:hover {
+        .transactions-table tbody tr:hover {
             background-color: #f0f7ff;
         }
         
@@ -679,70 +698,44 @@
             to { opacity: 0; }
         }
         
-        .collapsible-section {
-            margin-bottom: 15px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .collapsible-header {
-            background: linear-gradient(135deg, #2c3e50, #1a2a6c);
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
             color: white;
-            padding: 15px;
-            cursor: pointer;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-weight: 600;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(20px);
             transition: all 0.3s ease;
         }
         
-        .collapsible-header:hover {
-            background: linear-gradient(135deg, #34495e, #1a2a6c);
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         
-        .collapsible-header i {
-            transition: transform 0.3s ease;
-        }
-        
-        .collapsible-content {
-            background: #f8f9fa;
-            padding: 20px;
-            overflow-y: auto;
-            transition: padding 0.5s ease;
-        }
-        
-        .collapsed .collapsible-content {
-            padding: 0 20px;
-        }
-        
-        .collapsed .collapsible-header i {
-            transform: rotate(180deg);
-        }
-        
-        .section-indicator {
-            background: #3498db;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.8em;
-            margin-left: 8px;
+        .back-to-top:hover {
+            background: linear-gradient(to right, #8e44ad, #9b59b6);
+            transform: translateY(-3px);
         }
         
         @media (min-width: 769px) {
-            .collapsible-section {
-                display: block !important;
-            }
-            .collapsible-header {
-                display: none;
-            }
-            .collapsible-content {
-                padding: 20px !important;
+            .back-to-top {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
             }
         }
         
@@ -811,15 +804,11 @@
                 padding: 15px;
             }
             
-            .data-section {
+            .transactions-section {
                 padding: 15px;
             }
             
-            .financial-health-section {
-                padding: 15px;
-            }
-            
-            .section-title {
+            .transactions-title {
                 font-size: 1.0em;
                 justify-content: center;
             }
@@ -840,22 +829,22 @@
                 font-size: 0.85em;
             }
             
-            .data-section table, 
-            .data-section thead, 
-            .data-section tbody, 
-            .data-section th, 
-            .data-section td, 
-            .data-section tr {
+            .transactions-table, 
+            .transactions-table thead, 
+            .transactions-table tbody, 
+            .transactions-table th, 
+            .transactions-table td, 
+            .transactions-table tr {
                 display: block;
             }
             
-            .data-section thead tr {
+            .transactions-table thead tr {
                 position: absolute;
                 top: -9999px;
                 left: -9999px;
             }
             
-            .data-section tr {
+            .transactions-table tr {
                 border: 1px solid #ddd;
                 margin-bottom: 15px;
                 border-radius: 8px;
@@ -864,7 +853,7 @@
                 position: relative;
             }
             
-            .data-section td {
+            .transactions-table td {
                 border: none;
                 border-bottom: 1px solid #eee;
                 position: relative;
@@ -874,13 +863,13 @@
                 padding: 10px 15px;
             }
             
-            .data-section td:last-child {
+            .transactions-table td:last-child {
                 border-bottom: 0;
                 text-align: center;
                 padding-left: 10px;
             }
             
-            .data-section td::before {
+            .transactions-table td::before {
                 content: attr(data-label);
                 position: absolute;
                 left: 10px;
@@ -893,7 +882,7 @@
                 font-size: 0.85em;
             }
             
-            .data-section td[data-label="Paga?"][data-is-income="true"]::before {
+            .transactions-table td[data-label="Paga?"][data-is-income="true"]::before {
                 display: none;
             }
             
@@ -927,18 +916,6 @@
             .export-section {
                 grid-template-columns: 1fr;
             }
-            
-            .collapsible-content .section-title {
-                display: none;
-            }
-            
-            .data-section {
-                padding: 10px;
-            }
-            
-            .data-section tr {
-                margin-bottom: 10px;
-            }
         }
         
         @media (max-width: 480px) {
@@ -964,12 +941,12 @@
                 font-size: 1.3em;
             }
             
-            .data-section td {
+            .transactions-table td {
                 font-size: 0.8em;
                 padding: 10px 15px 10px 50%;
             }
             
-            .data-section td::before {
+            .transactions-table td::before {
                 font-size: 1.0em;
             }
             
@@ -986,50 +963,7 @@
             .action-cell .btn i {
                 font-size: 0.9em;
             }
-        }
-        
-        .back-to-top {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(to right, #9b59b6, #8e44ad);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 999;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-        }
-        
-        .back-to-top.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .back-to-top:hover {
-            background: linear-gradient(to right, #8e44ad, #9b59b6);
-            transform: translateY(-3px);
-        }
-        
-        @media (min-width: 769px) {
-            .back-to-top {
-                position: absolute;
-                bottom: 20px;
-                right: 20px;
-                width: 45px;
-                height: 45px;
-            }
-        }
-        
-        @media (max-width: 768px) {
+            
             .back-to-top {
                 bottom: 70px;
                 right: 15px;
@@ -1147,33 +1081,30 @@
             </div>
         </div>
 
-        <div class="collapsible-section" id="transactions-section">
-            <div class="collapsible-header">
-                <div>
+        <!-- NOVA SEÇÃO DE TRANSAÇÕES REFORMULADA -->
+        <div class="transactions-section">
+            <div class="transactions-header">
+                <div class="transactions-title">
                     <i class="fas fa-list"></i> Detalhes das Transações
-                    <span class="section-indicator" id="transactions-indicator">0</span>
-                </div>
-                <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="collapsible-content">
-                <div class="data-section">
-                    <table id="transactions-table">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Descrição</th>
-                                <th>Categoria</th>
-                                <th>Valor</th>
-                                <th>Paga?</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- As transações serão inseridas aqui via JavaScript -->
-                        </tbody>
-                    </table>
+                    <span class="transactions-count" id="transactions-indicator">0</span>
                 </div>
             </div>
+            
+            <table class="transactions-table" id="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Valor</th>
+                        <th>Paga?</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- As transações serão inseridas aqui via JavaScript -->
+                </tbody>
+            </table>
         </div>
 
         <div class="charts-section">
@@ -1218,7 +1149,6 @@
             <button id="import-data" class="btn btn-import">
                 <i class="fas fa-file-import"></i> Importar Dados (JSON)
             </button>
-            <!-- NOVO BOTÃO WHATSAPP -->
             <button id="share-whatsapp" class="btn btn-whatsapp">
                 <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
             </button>
@@ -1270,7 +1200,7 @@
         const financialHealthMessage = document.getElementById('financial-health-message');
         const transactionsIndicator = document.getElementById('transactions-indicator');
         const backToTopBtn = document.getElementById('back-to-top');
-        const shareWhatsappBtn = document.getElementById('share-whatsapp'); // Novo botão
+        const shareWhatsappBtn = document.getElementById('share-whatsapp');
         
         // Atualizar data atual
         const now = new Date();
@@ -2285,7 +2215,7 @@
             }
         }
         
-        // --- NOVA FUNÇÃO: Compartilhar via WhatsApp ---
+        // Compartilhar via WhatsApp
         function shareOnWhatsApp() {
             // Verificar se existem transações
             if (transactions.length === 0) {
@@ -2354,7 +2284,7 @@
         exportJsonBtn.addEventListener('click', exportToJSON);
         updateBtn.addEventListener('click', updateTransaction);
         cancelBtn.addEventListener('click', cancelEditMode);
-        shareWhatsappBtn.addEventListener('click', shareOnWhatsApp); // Novo listener
+        shareWhatsappBtn.addEventListener('click', shareOnWhatsApp);
         
         // Importação de dados
         importDataBtn.addEventListener('click', () => {
@@ -2421,30 +2351,10 @@
             }
         }
 
-        // Configuração das seções recolhíveis
-        function setupCollapsibleSections() {
-            const transactionsSection = document.getElementById('transactions-section');
-            const transactionsHeader = transactionsSection.querySelector('.collapsible-header');
-            
-            // Função para alternar o estado da seção
-            function toggleSection(section) {
-                section.classList.toggle('collapsed');
-            }
-            
-            // Adiciona evento ao cabeçalho
-            transactionsHeader.addEventListener('click', () => toggleSection(transactionsSection));
-            
-            // Recolhe a seção por padrão em dispositivos móveis
-            if (window.innerWidth <= 768) {
-                transactionsSection.classList.add('collapsed');
-            }
-        }
-
         // Carrega as transações e atualiza a UI ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
             loadTransactions();
             addSampleData();
-            setupCollapsibleSections();
             
             // Inicializar o botão de voltar ao topo
             toggleBackToTopButton();
