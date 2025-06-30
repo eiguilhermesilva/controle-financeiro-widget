@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro Corrigido</title>
+    <title>Controle Financeiro com WhatsApp</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -243,8 +243,21 @@
             justify-content: center;
         }
         
-        /* --- RESULTADO DAS CORREÇÕES --- */
-        /* Removemos a caixa externa do summary-section */
+        /* NOVO BOTÃO WHATSAPP */
+        .btn-whatsapp {
+            background: linear-gradient(to right, #25D366, #128C7E);
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            font-size: 1.0em;
+            justify-content: center;
+        }
+        
+        .btn-whatsapp:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(37, 211, 102, 0.3);
+        }
+        
         .summary-section {
             display: flex;
             justify-content: space-around;
@@ -257,7 +270,6 @@
             gap: 20px;
         }
         
-        /* Estilizamos cada card individualmente */
         .summary-item {
             text-align: center;
             min-width: 200px;
@@ -267,7 +279,6 @@
             background: white;
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
-        /* --- FIM DAS CORREÇÕES --- */
         
         .summary-item h3 {
             color: #7f8c8d;
@@ -290,7 +301,7 @@
         }
         
         #current-balance {
-            color: #3498db; /* Cor padrão (azul) */
+            color: #3498db;
         }
         
         #total-paid {
@@ -668,7 +679,6 @@
             to { opacity: 0; }
         }
         
-        /* Estilos para seção de transações recolhível */
         .collapsible-section {
             margin-bottom: 15px;
             border-radius: 12px;
@@ -696,7 +706,6 @@
             transition: transform 0.3s ease;
         }
         
-        /* --- CORREÇÃO DA ROLAGEM --- */
         .collapsible-content {
             background: #f8f9fa;
             padding: 20px;
@@ -707,7 +716,6 @@
         .collapsed .collapsible-content {
             padding: 0 20px;
         }
-        /* --- FIM DA CORREÇÃO --- */
         
         .collapsed .collapsible-header i {
             transform: rotate(180deg);
@@ -726,7 +734,6 @@
             margin-left: 8px;
         }
         
-        /* Esconde a seção recolhível em desktop */
         @media (min-width: 769px) {
             .collapsible-section {
                 display: block !important;
@@ -739,7 +746,6 @@
             }
         }
         
-        /* Estilos responsivos */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -776,7 +782,6 @@
                 font-size: 0.9em;
             }
             
-            /* --- MELHORIA PARA CARDS EM MOBILE --- */
             .summary-section {
                 flex-direction: column;
                 gap: 15px;
@@ -793,7 +798,6 @@
             .summary-item p {
                 font-size: 1.4em;
             }
-            /* --- FIM DA MELHORIA --- */
             
             .charts-container {
                 flex-direction: column;
@@ -924,12 +928,10 @@
                 grid-template-columns: 1fr;
             }
             
-            /* CORREÇÃO: Remover título duplicado em mobile */
             .collapsible-content .section-title {
                 display: none;
             }
             
-            /* Melhorar espaçamento dos cards */
             .data-section {
                 padding: 10px;
             }
@@ -971,7 +973,7 @@
                 font-size: 1.0em;
             }
             
-            .btn-image, .btn-csv, .btn-pdf, .btn-json, .btn-import {
+            .btn-image, .btn-csv, .btn-pdf, .btn-json, .btn-import, .btn-whatsapp {
                 padding: 14px;
                 font-size: 0.95em;
             }
@@ -986,7 +988,6 @@
             }
         }
         
-        /* Botão Voltar ao Topo - TAMANHO REDUZIDO */
         .back-to-top {
             position: fixed;
             bottom: 20px;
@@ -1018,7 +1019,6 @@
             transform: translateY(-3px);
         }
         
-        /* Estilo para desktop */
         @media (min-width: 769px) {
             .back-to-top {
                 position: absolute;
@@ -1029,7 +1029,6 @@
             }
         }
         
-        /* Estilo para mobile */
         @media (max-width: 768px) {
             .back-to-top {
                 bottom: 70px;
@@ -1125,7 +1124,6 @@
             </div>
         </div>
 
-        <!-- Resumo Financeiro (sem recolhível) -->
         <div class="summary-section">
             <div class="summary-item">
                 <h3><i class="fas fa-arrow-up"></i> Renda Total:</h3>
@@ -1149,7 +1147,6 @@
             </div>
         </div>
 
-        <!-- Seção de Transações Recolhível - CORRIGIDA -->
         <div class="collapsible-section" id="transactions-section">
             <div class="collapsible-header">
                 <div>
@@ -1160,7 +1157,6 @@
             </div>
             <div class="collapsible-content">
                 <div class="data-section">
-                    <!-- Título removido para evitar duplicação em mobile -->
                     <table id="transactions-table">
                         <thead>
                             <tr>
@@ -1180,7 +1176,6 @@
             </div>
         </div>
 
-        <!-- Gráficos -->
         <div class="charts-section">
             <div class="section-title"><i class="fas fa-chart-pie"></i> Gráficos de Finanças</div>
             <div class="charts-container">
@@ -1199,7 +1194,6 @@
             </div>
         </div>
         
-        <!-- Saúde Financeira -->
         <div class="financial-health-section">
             <div class="section-title"><i class="fas fa-heartbeat"></i> Saúde Financeira</div>
             <div class="health-message" id="financial-health-message">
@@ -1208,7 +1202,6 @@
             </div>
         </div>
 
-        <!-- Exportação de dados -->
         <div class="export-section">
             <button id="generate-image" class="btn btn-image">
                 <i class="fas fa-camera"></i> Gerar Imagem do Relatório
@@ -1225,9 +1218,12 @@
             <button id="import-data" class="btn btn-import">
                 <i class="fas fa-file-import"></i> Importar Dados (JSON)
             </button>
+            <!-- NOVO BOTÃO WHATSAPP -->
+            <button id="share-whatsapp" class="btn btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
+            </button>
         </div>
         
-        <!-- Botão Voltar ao Topo - TAMANHO REDUZIDO -->
         <div class="back-to-top" id="back-to-top">
             <i class="fas fa-arrow-up"></i>
         </div>
@@ -1274,6 +1270,7 @@
         const financialHealthMessage = document.getElementById('financial-health-message');
         const transactionsIndicator = document.getElementById('transactions-indicator');
         const backToTopBtn = document.getElementById('back-to-top');
+        const shareWhatsappBtn = document.getElementById('share-whatsapp'); // Novo botão
         
         // Atualizar data atual
         const now = new Date();
@@ -2287,6 +2284,60 @@
                 backToTopBtn.classList.remove('visible');
             }
         }
+        
+        // --- NOVA FUNÇÃO: Compartilhar via WhatsApp ---
+        function shareOnWhatsApp() {
+            // Verificar se existem transações
+            if (transactions.length === 0) {
+                alert('Adicione transações antes de compartilhar!');
+                return;
+            }
+            
+            // Obter os dados resumidos
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let totalPaid = 0;
+            let totalPending = 0;
+            
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncome += transaction.value;
+                } else {
+                    const expenseValue = Math.abs(transaction.value);
+                    totalExpense += expenseValue;
+                    
+                    if (transaction.paga) {
+                        totalPaid += expenseValue;
+                    } else {
+                        totalPending += expenseValue;
+                    }
+                }
+            });
+            
+            const currentBalance = totalIncome - totalExpense;
+            
+            // Montar a mensagem para compartilhamento
+            let message = `📊 *Resumo Financeiro* 📊\n\n`;
+            message += `✅ *Renda Total:* ${formatCurrency(totalIncome)}\n`;
+            message += `💸 *Despesa Total:* ${formatCurrency(totalExpense)}\n`;
+            message += `💰 *Saldo Atual:* ${formatCurrency(currentBalance)}\n`;
+            message += `✔️ *Total Pago:* ${formatCurrency(totalPaid)}\n`;
+            message += `⏳ *Total Pendente:* ${formatCurrency(totalPending)}\n\n`;
+            message += `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_\n\n`;
+            message += `👉 *Dicas de economia:*\n`;
+            message += `- Revise suas despesas mensais\n`;
+            message += `- Estabeleça metas de economia\n`;
+            message += `- Priorize o pagamento de dívidas\n`;
+            
+            // Montar o link do WhatsApp
+            const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            
+            // Abrir nova janela/tab para compartilhamento
+            window.open(whatsappLink, '_blank');
+            
+            notificationText.textContent = "Compartilhando resumo via WhatsApp...";
+            showExportNotification();
+        }
 
         // --- Event Listeners ---
         addIncomeBtn.addEventListener('click', () => {
@@ -2303,6 +2354,7 @@
         exportJsonBtn.addEventListener('click', exportToJSON);
         updateBtn.addEventListener('click', updateTransaction);
         cancelBtn.addEventListener('click', cancelEditMode);
+        shareWhatsappBtn.addEventListener('click', shareOnWhatsApp); // Novo listener
         
         // Importação de dados
         importDataBtn.addEventListener('click', () => {
