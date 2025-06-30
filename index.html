@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro com Transações Recolhíveis</title>
+    <title>Controle Financeiro Corrigido</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -695,8 +695,8 @@
         .collapsible-content {
             background: #f8f9fa;
             padding: 20px;
-            max-height: 5000px; /* Aumentado para acomodar mais transações */
-            overflow-y: auto;  /* Adicionado para permitir rolagem */
+            max-height: 5000px;
+            overflow-y: auto;
             transition: max-height 0.5s ease, padding 0.5s ease;
         }
         
@@ -916,6 +916,20 @@
             .export-section {
                 grid-template-columns: 1fr;
             }
+            
+            /* CORREÇÃO: Remover título duplicado em mobile */
+            .collapsible-content .section-title {
+                display: none;
+            }
+            
+            /* Melhorar espaçamento dos cards */
+            .data-section {
+                padding: 10px;
+            }
+            
+            .data-section tr {
+                margin-bottom: 10px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -962,6 +976,59 @@
             
             .action-cell .btn i {
                 font-size: 0.9em;
+            }
+        }
+        
+        /* Botão Voltar ao Topo - TAMANHO REDUZIDO */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .back-to-top:hover {
+            background: linear-gradient(to right, #8e44ad, #9b59b6);
+            transform: translateY(-3px);
+        }
+        
+        /* Estilo para desktop */
+        @media (min-width: 769px) {
+            .back-to-top {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+        
+        /* Estilo para mobile */
+        @media (max-width: 768px) {
+            .back-to-top {
+                bottom: 70px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -1075,7 +1142,7 @@
             </div>
         </div>
 
-        <!-- Seção de Transações Recolhível -->
+        <!-- Seção de Transações Recolhível - CORRIGIDA -->
         <div class="collapsible-section" id="transactions-section">
             <div class="collapsible-header">
                 <div>
@@ -1086,7 +1153,7 @@
             </div>
             <div class="collapsible-content">
                 <div class="data-section">
-                    <div class="section-title"><i class="fas fa-list"></i> Detalhes das Transações</div>
+                    <!-- Título removido para evitar duplicação em mobile -->
                     <table id="transactions-table">
                         <thead>
                             <tr>
@@ -1152,6 +1219,11 @@
                 <i class="fas fa-file-import"></i> Importar Dados (JSON)
             </button>
         </div>
+        
+        <!-- Botão Voltar ao Topo - TAMANHO REDUZIDO -->
+        <div class="back-to-top" id="back-to-top">
+            <i class="fas fa-arrow-up"></i>
+        </div>
 
         <div class="widget-footer">
             Guilherme S. Vanderley © 2025 - Todos os direitos reservados.
@@ -1194,6 +1266,7 @@
         const fileNameDisplay = document.getElementById('file-name-display');
         const financialHealthMessage = document.getElementById('financial-health-message');
         const transactionsIndicator = document.getElementById('transactions-indicator');
+        const backToTopBtn = document.getElementById('back-to-top');
         
         // Atualizar data atual
         const now = new Date();
@@ -2190,6 +2263,23 @@
                 exportNotification.style.display = 'none';
             }, 3000);
         }
+        
+        // Função para voltar ao topo com animação suave
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Verifica a posição de rolagem para mostrar/ocultar o botão
+        function toggleBackToTopButton() {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        }
 
         // --- Event Listeners ---
         addIncomeBtn.addEventListener('click', () => {
@@ -2251,6 +2341,10 @@
                 importFromJSON(file, importOption);
             }
         });
+        
+        // Botão voltar ao topo
+        backToTopBtn.addEventListener('click', scrollToTop);
+        window.addEventListener('scroll', toggleBackToTopButton);
 
         // Adicionar transações de exemplo
         function addSampleData() {
@@ -2292,6 +2386,9 @@
             loadTransactions();
             addSampleData();
             setupCollapsibleSections();
+            
+            // Inicializar o botão de voltar ao topo
+            toggleBackToTopButton();
         });
     </script>
 </body>
