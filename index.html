@@ -243,18 +243,21 @@
             justify-content: center;
         }
         
+        /* --- RESULTADO DAS CORREÇÕES --- */
+        /* Removemos a caixa externa do summary-section */
         .summary-section {
             display: flex;
             justify-content: space-around;
-            background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
-            padding: 25px;
-            border-radius: 12px;
+            padding: 0; 
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
             margin-bottom: 30px;
             flex-wrap: wrap;
             gap: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         
+        /* Estilizamos cada card individualmente */
         .summary-item {
             text-align: center;
             min-width: 200px;
@@ -264,6 +267,7 @@
             background: white;
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
+        /* --- FIM DAS CORREÇÕES --- */
         
         .summary-item h3 {
             color: #7f8c8d;
@@ -692,18 +696,18 @@
             transition: transform 0.3s ease;
         }
         
+        /* --- CORREÇÃO DA ROLAGEM --- */
         .collapsible-content {
             background: #f8f9fa;
             padding: 20px;
-            max-height: 5000px;
             overflow-y: auto;
-            transition: max-height 0.5s ease, padding 0.5s ease;
+            transition: padding 0.5s ease;
         }
         
         .collapsed .collapsible-content {
-            max-height: 0;
             padding: 0 20px;
         }
+        /* --- FIM DA CORREÇÃO --- */
         
         .collapsed .collapsible-header i {
             transform: rotate(180deg);
@@ -731,7 +735,6 @@
                 display: none;
             }
             .collapsible-content {
-                max-height: none !important;
                 padding: 20px !important;
             }
         }
@@ -773,20 +776,24 @@
                 font-size: 0.9em;
             }
             
+            /* --- MELHORIA PARA CARDS EM MOBILE --- */
             .summary-section {
                 flex-direction: column;
                 gap: 15px;
-                padding: 15px;
+                padding: 0;
             }
             
             .summary-item {
+                width: 100%;
                 min-width: 100%;
-                padding: 12px;
+                padding: 20px;
+                margin: 0 0 15px 0;
             }
             
             .summary-item p {
-                font-size: 1.3em;
+                font-size: 1.4em;
             }
+            /* --- FIM DA MELHORIA --- */
             
             .charts-container {
                 flex-direction: column;
@@ -952,7 +959,7 @@
             }
             
             .summary-item p {
-                font-size: 1.2em;
+                font-size: 1.3em;
             }
             
             .data-section td {
