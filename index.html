@@ -1047,6 +1047,16 @@
                 font-size: 1.5em;
             }
         }
+
+        .btn-sync {
+  background: linear-gradient(to right, #4285F4, #34A853);
+  padding: 10px 15px;
+  font-size: 0.9em;
+}
+
+.btn-sync:hover {
+  background: linear-gradient(to right, #3367D6, #2E8B57);
+}
     </style>
 </head>
 <body>
@@ -2484,6 +2494,56 @@
         // Inicializar o botão de voltar ao topo
         toggleBackToTopButton();
     });
+
+     ///// ADICIONE ESTA PARTE NO FINAL DO SCRIPT /////
+  // Configurações do Google Drive (USE SEU ID AQUI!)
+  const CLIENT_ID = '950131462140-3khqietah1o182jgk70sem6e9vmm4497.apps.googleusercontent.com';
+     
+
+  // Botão de Sincronização
+  document.addEventListener('DOMContentLoaded', () => {
+    // ... (código que já existia) ...
+
+    // Adicionar botão de sincronização
+    const syncBtn = document.createElement('button');
+    syncBtn.id = 'sync-drive';
+    syncBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
+    syncBtn.classList.add('btn', 'btn-sync');
+    document.querySelector('.header').appendChild(syncBtn);
+
+    // Quando clicar no botão
+    document.getElementById('sync-drive').addEventListener('click', async () => {
+      try {
+        // Passo 1: Pedir permissão ao Google
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=http://localhost&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
+        window.open(authUrl, '_blank');
+        
+        // Passo 2: Salvar os dados
+        const token = await new Promise((resolve) => {
+          window.addEventListener('message', (event) => {
+            if (event.origin === 'http://localhost' && event.data.token) {
+              resolve(event.data.token);
+            }
+          });
+        });
+
+        // Passo 3: Enviar para o Google Drive
+        const fileContent = JSON.stringify(transactions);
+        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=media', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: fileContent
+        });
+        
+        alert('Dados salvos na nuvem! Agora você pode acessar de qualquer dispositivo.');
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    });
+  });
 </script>
 </body>
 </html>
