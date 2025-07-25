@@ -1047,6 +1047,95 @@
                 font-size: 1.5em;
             }
         }
+
+        .notification-settings {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.notification-settings h3 {
+    color: #2c3e50;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notification-options label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #555;
+}
+
+.notification-frequency {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+    padding-left: 25px;
+}
+
+.notification-frequency label {
+    font-weight: 500;
+}
+
+.notification-frequency select, 
+.notification-frequency input[type="time"] {
+    padding: 8px 12px;
+    border: 1px solid #dfe6e9;
+    border-radius: 6px;
+    background: white;
+}
+
+#enable-notifications {
+    width: 18px;
+    height: 18px;
+}
+
+.in-app-reminder {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.3s;
+}
+
+.reminder-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-reminder {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 10px;
+}
     </style>
 </head>
 <body>
@@ -1133,6 +1222,26 @@
                 </button>
             </div>
         </div>
+
+        <!-- Adicionar após a seção de input-section -->
+<div class="notification-settings">
+    <h3><i class="fas fa-bell"></i> Lembretes</h3>
+    <div class="notification-options">
+        <label>
+            <input type="checkbox" id="enable-notifications"> Ativar lembretes
+        </label>
+        <div class="notification-frequency" id="notification-frequency">
+            <label>Frequência:</label>
+            <select id="reminder-frequency">
+                <option value="daily">Diariamente</option>
+                <option value="weekly">Semanalmente</option>
+                <option value="biweekly">Quinzenalmente</option>
+                <option value="monthly">Mensalmente</option>
+            </select>
+            <input type="time" id="reminder-time" value="18:00">
+        </div>
+    </div>
+</div>
 
         <div class="summary-section">
             <div class="summary-item">
@@ -2484,6 +2593,243 @@
         // Inicializar o botão de voltar ao topo
         toggleBackToTopButton();
     });
+
+    // Adicionar esta função ao seu código
+function checkTodaysActivity() {
+    const today = new Date().toLocaleDateString();
+    return transactions.some(t => {
+        const transactionDate = new Date(t.id).toLocaleDateString();
+        return transactionDate === today;
+    });
+}
+
+// Modificar a função showNotification para usar esta verificação
+function showNotification() {
+    if (!checkTodaysActivity()) {
+        const notification = new Notification("GG - Controle Financeiro", {
+            body: "Lembrete: Registre suas finanças hoje!",
+            icon: "https://cdn-icons-png.flaticon.com/512/3132/3132693.png",
+            vibrate: [200, 100, 200]
+        });
+        
+        notification.onclick = () => {
+            window.focus();
+        };
+    }
+}
+
+// Variáveis para controle de notificações
+let notificationEnabled = false;
+let notificationFrequency = 'daily';
+let notificationTime = '18:00';
+let notificationInterval = null;
+
+// Elementos do DOM
+const enableNotificationsCheckbox = document.getElementById('enable-notifications');
+const reminderFrequencySelect = document.getElementById('reminder-frequency');
+const reminderTimeInput = document.getElementById('reminder-time');
+const notificationFrequencyDiv = document.getElementById('notification-frequency');
+
+// Carregar configurações de notificação
+function loadNotificationSettings() {
+    const settings = JSON.parse(localStorage.getItem('notificationSettings')) || {};
+    notificationEnabled = settings.enabled || false;
+    notificationFrequency = settings.frequency || 'daily';
+    notificationTime = settings.time || '18:00';
+    
+    // Atualizar UI
+    enableNotificationsCheckbox.checked = notificationEnabled;
+    reminderFrequencySelect.value = notificationFrequency;
+    reminderTimeInput.value = notificationTime;
+    
+    // Mostrar/ocultar opções de frequência
+    notificationFrequencyDiv.style.display = notificationEnabled ? 'flex' : 'none';
+    
+    // Configurar notificações se estiverem ativadas
+    if (notificationEnabled) {
+        setupNotifications();
+    }
+}
+
+// Salvar configurações de notificação
+function saveNotificationSettings() {
+    const settings = {
+        enabled: notificationEnabled,
+        frequency: notificationFrequency,
+        time: notificationTime
+    };
+    localStorage.setItem('notificationSettings', JSON.stringify(settings));
+}
+
+// Configurar notificações
+function setupNotifications() {
+    // Limpar intervalo existente
+    if (notificationInterval) {
+        clearInterval(notificationInterval);
+    }
+    
+    // Verificar permissão para notificações
+    if (!("Notification" in window)) {
+        console.log("Este navegador não suporta notificações desktop");
+        return;
+    }
+    
+    // Solicitar permissão se necessário
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                scheduleNotifications();
+            }
+        });
+    } else if (Notification.permission === "granted") {
+        scheduleNotifications();
+    }
+}
+
+// Agendar notificações
+function scheduleNotifications() {
+    // Calcular intervalo com base na frequência
+    let intervalMs;
+    switch (notificationFrequency) {
+        case 'weekly':
+            intervalMs = 7 * 24 * 60 * 60 * 1000; // 7 dias
+            break;
+        case 'biweekly':
+            intervalMs = 15 * 24 * 60 * 60 * 1000; // 15 dias
+            break;
+        case 'monthly':
+            intervalMs = 30 * 24 * 60 * 60 * 1000; // ~30 dias
+            break;
+        default: // daily
+            intervalMs = 24 * 60 * 60 * 1000; // 24 horas
+    }
+    
+    // Verificar se já passou o horário hoje
+    const [hours, minutes] = notificationTime.split(':').map(Number);
+    const now = new Date();
+    const nextNotification = new Date();
+    
+    nextNotification.setHours(hours, minutes, 0, 0);
+    
+    if (now > nextNotification) {
+        // Já passou o horário hoje, agendar para amanhã
+        nextNotification.setDate(nextNotification.getDate() + 1);
+    }
+    
+    const initialDelay = nextNotification - now;
+    
+    // Primeira notificação
+    setTimeout(() => {
+        showNotification();
+        // Notificações subsequentes
+        notificationInterval = setInterval(showNotification, intervalMs);
+    }, initialDelay);
+}
+
+// Mostrar notificação
+function showNotification() {
+    // Verificar se há transações hoje
+    const today = new Date().toLocaleDateString();
+    const hasTransactionsToday = transactions.some(t => {
+        const transactionDate = new Date(t.id).toLocaleDateString();
+        return transactionDate === today;
+    });
+    
+    if (!hasTransactionsToday) {
+        const notification = new Notification("GG - Controle Financeiro", {
+            body: "Lembrete: Registre suas finanças hoje!",
+            icon: "https://cdn-icons-png.flaticon.com/512/3132/3132693.png",
+            vibrate: [200, 100, 200]
+        });
+        
+        notification.onclick = () => {
+            window.focus();
+        };
+    }
+}
+
+// Event Listeners para configurações de notificação
+enableNotificationsCheckbox.addEventListener('change', (e) => {
+    notificationEnabled = e.target.checked;
+    notificationFrequencyDiv.style.display = notificationEnabled ? 'flex' : 'none';
+    saveNotificationSettings();
+    
+    if (notificationEnabled) {
+        setupNotifications();
+    } else {
+        if (notificationInterval) {
+            clearInterval(notificationInterval);
+            notificationInterval = null;
+        }
+    }
+});
+
+reminderFrequencySelect.addEventListener('change', (e) => {
+    notificationFrequency = e.target.value;
+    saveNotificationSettings();
+    if (notificationEnabled) {
+        setupNotifications();
+    }
+});
+
+reminderTimeInput.addEventListener('change', (e) => {
+    notificationTime = e.target.value;
+    saveNotificationSettings();
+    if (notificationEnabled) {
+        setupNotifications();
+    }
+});
+
+// Carregar configurações quando a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotificationSettings();
+    // ... restante do seu código existente
+});
+
+function showInAppReminder() {
+    if (!checkTodaysActivity()) {
+        const reminder = document.createElement('div');
+        reminder.className = 'in-app-reminder';
+        reminder.innerHTML = `
+            <div class="reminder-content">
+                <i class="fas fa-bell"></i>
+                <span>Não se esqueça de registrar suas finanças hoje!</span>
+                <button class="close-reminder">&times;</button>
+            </div>
+        `;
+        
+        document.body.appendChild(reminder);
+        
+        // Fechar a notificação após 10 segundos
+        setTimeout(() => {
+            reminder.style.opacity = '0';
+            setTimeout(() => reminder.remove(), 300);
+        }, 10000);
+        
+        // Fechar ao clicar no botão
+        reminder.querySelector('.close-reminder').addEventListener('click', () => {
+            reminder.style.opacity = '0';
+            setTimeout(() => reminder.remove(), 300);
+        });
+    }
+}
+
+// Chamar esta função quando o usuário abrir o aplicativo após o horário configurado
+function checkForReminderOnLoad() {
+    const [hours, minutes] = notificationTime.split(':').map(Number);
+    const now = new Date();
+    
+    if (notificationEnabled && now.getHours() >= hours && now.getMinutes() >= minutes) {
+        showInAppReminder();
+    }
+}
+
+// Adicionar ao DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotificationSettings();
+    checkForReminderOnLoad();
+    // ... restante do seu código existente
+});
 </script>
 </body>
 </html>
