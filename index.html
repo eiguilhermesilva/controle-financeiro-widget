@@ -1267,7 +1267,71 @@
             Guilherme S. Vanderley © 2025 - Todos os direitos reservados.
         </div>
     </div>
-
+    <!-- Nova seção para Google Drive -->
+    <div class="drive-section">
+        <div class="drive-header">
+            <div class="drive-title">
+                <i class="fab fa-google-drive"></i> Armazenamento no Google Drive
+            </div>
+            <div class="drive-actions">
+                <button id="sign-in-button" class="btn-drive">
+                    <i class="fab fa-google"></i> Conectar ao Google Drive
+                </button>
+                <button id="sign-out-button" class="btn-drive btn-drive-signout" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> Desconectar
+                </button>
+            </div>
+        </div>
+        
+        <div class="drive-status" id="drive-status">
+            <i class="fas fa-info-circle"></i> Não conectado ao Google Drive
+        </div>
+        
+        <div class="drive-files-list" id="drive-files-list">
+            <div class="drive-empty">
+                <i class="fas fa-cloud"></i>
+                <p>Nenhum arquivo encontrado</p>
+            </div>
+        </div>
+        
+        <div class="drive-actions" style="margin-top: 15px;">
+            <button id="save-to-drive" class="btn-drive" disabled>
+                <i class="fas fa-cloud-upload-alt"></i> Salvar no Drive
+            </button>
+            <button id="refresh-drive" class="btn-drive">
+                <i class="fas fa-sync-alt"></i> Atualizar Lista
+            </button>
+        </div>
+    </div>
+    
+    <!-- Botões mobile para Google Drive -->
+    <div class="mobile-drive-buttons">
+        <button class="mobile-drive-button" id="mobile-sign-in">
+            <i class="fab fa-google"></i>
+            <span>Conectar</span>
+        </button>
+        <button class="mobile-drive-button" id="mobile-save-drive" disabled>
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Salvar</span>
+        </button>
+        <button class="mobile-drive-button" id="mobile-refresh-drive">
+            <i class="fas fa-sync-alt"></i>
+            <span>Atualizar</span>
+        </button>
+        <button class="mobile-drive-button signout" id="mobile-sign-out" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Sair</span>
+        </button>
+    </div>
+    
+    <!-- Modal de carregamento -->
+    <div class="drive-loading-modal" id="drive-loading-modal" style="display: none;">
+        <div class="drive-loading-content">
+            <div class="drive-loading-spinner"></div>
+            <h3>Processando...</h3>
+            <p id="loading-message">Conectando ao Google Drive</p>
+        </div>
+    </div>
     <script>
         // Referências aos elementos do DOM
         const descriptionInput = document.getElementById('description');
