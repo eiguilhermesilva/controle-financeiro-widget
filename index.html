@@ -2573,22 +2573,6 @@ window.addEventListener('message', async (event) => {
         }
     }
 });
-
-// ========== INICIALIZAÇÃO ========== //
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (seu código de inicialização existente) ...
-    
-    // Adicionar evento ao botão de nuvem
-    syncBtn.addEventListener('click', saveToCloud);
-    
-    // Tentar carregar dados salvos localmente
-    loadTransactions();
-    
-    // Status inicial
-    cloudStatus.textContent = "Clique em 'Salvar na Nuvem' para sincronizar";
-});
-
-// ... (restante do seu código permanece igual) ...
 </script>
 </body>
 </html>
