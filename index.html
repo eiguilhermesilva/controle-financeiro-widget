@@ -38,20 +38,20 @@
         }
         
         .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 25px;
-    border-bottom: 2px solid #f0f2f5;
-    position: relative; /* Adicionado para posicionamento relativo */
-}
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 25px;
+           padding-bottom: 25px;
+           border-bottom: 2px solid #f0f2f5;
+           position: relative; /* Adicionado para posicionamento relativo */
+       }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+       .header-right {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+       }
         
         h1 {
             color: #2c3e50;
@@ -67,17 +67,17 @@
         }
         
         .date-display {
-    background: #f8f9fa;
-    padding: 8px 20px;
-    border-radius: 30px;
-    font-weight: 600;
-    color: #555;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+           background: #f8f9fa;
+           padding: 8px 20px;
+           border-radius: 30px;
+           font-weight: 600;
+           color: #555;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+           font-size: 0.9em;
+           display: flex;
+           align-items: center;
+           gap: 8px;
+       }
         
         .input-section {
             display: flex;
@@ -1058,63 +1058,6 @@
             }
         }
 
-        .notification-settings {
-    background: #f8f9fa;
-    padding: 0px;
-    border-radius: 50px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.notification-settings h3 {
-    color: #2c3e50;
-    font-size: 1.em;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.notification-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.notification-options label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    color: #555;
-}
-
-.notification-frequency {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    margin-top: 10px;
-    padding-left: 25px;
-}
-
-.notification-frequency label {
-    font-weight: 500;
-}
-
-.notification-frequency select, 
-.notification-frequency input[type="time"] {
-    padding: 8px 12px;
-    border: 1px solid #dfe6e9;
-    border-radius: 6px;
-    background: white;
-}
-
-#enable-notifications {
-    width: 18px;
-    height: 18px;
-}
-
 .in-app-reminder {
     position: fixed;
     bottom: 20px;
@@ -1152,68 +1095,118 @@
     font-size: 1.5em;
 }
 
-.notification-settings {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 20px;
-}
-
-.notification-settings {
-    position: relative;
-}
-
-.notification-icon {
-    background: #f8f9fa;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.1em;
-    color: #2c3e50;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.notification-icon:hover {
-    background: #e3f2fd;
-    transform: scale(1.1);
-}
-
-.notification-options-container {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    z-index: 100;
-    width: 280px;
-    display: none;
-}
-
-.notification-options-container.show {
-    display: block;
-}
-
-.notification-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.notification-frequency {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    margin-top: 10px;
-    padding-left: 0;
-}
+/* RESET COMPLETO DAS NOTIFICAÇÕES - COMEÇO DO ZERO */
+    
+    /* Container principal das configurações */
+    .notification-settings {
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Ícone do sino */
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #2c3e50;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .notification-icon:hover {
+        background: #e3f2fd;
+        transform: scale(1.1);
+    }
+    
+    /* Container das opções (inicialmente escondido) */
+    .notification-options-container {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 280px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        padding: 15px;
+        z-index: 1000;
+        display: none;
+        margin-top: 10px;
+    }
+    
+    .notification-options-container.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    /* Título das opções */
+    .notification-options-container h3 {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    /* Opções de notificação */
+    .notification-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    /* Checkbox de ativação */
+    .notification-options label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        color: #555;
+    }
+    
+    /* Controles de frequência */
+    .notification-frequency {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+        padding-left: 25px;
+    }
+    
+    .notification-frequency select,
+    .notification-frequency input[type="time"] {
+        padding: 8px 12px;
+        border: 1px solid #dfe6e9;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: white;
+    }
+    
+    /* Animações */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Layout responsivo */
+    @media (max-width: 768px) {
+        .notification-settings {
+            order: -1; /* Coloca o ícone à esquerda no mobile */
+        }
+        
+        .notification-options-container {
+            right: auto;
+            left: 0;
+            width: 260px;
+        }
+    }
     </style>
 </head>
 <body>
