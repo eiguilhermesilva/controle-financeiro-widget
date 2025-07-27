@@ -1261,7 +1261,6 @@
         <h3><i class="fas fa-balance-scale"></i> Saldo Final:</h3>
         <p id="current-balance">R$ 0.00</p>
     </div>
-    <!-- Novo item que vamos adicionar -->
     <div class="summary-item">
         <h3><i class="fas fa-wallet"></i> Saldo Atual:</h3>
         <p id="real-balance">R$ 0.00</p>
@@ -1860,14 +1859,26 @@
     
     // Altera a cor do saldo conforme o valor
     function updateBalanceColor(element, value) {
+    if (element.id === 'real-balance') {
+        // Cores específicas para o Saldo Atual
+        if (value > 0) {
+            element.style.color = '#F39C12'; // Laranja para positivo
+        } else if (value < 0) {
+            element.style.color = '#e74c3c'; // Vermelho para negativo
+        } else {
+            element.style.color = '#3498db'; // Azul para zero
+        }
+    } else {
+        // Mantém as cores originais para outros elementos
         if (value > 0) {
             element.style.color = '#27ae60'; // Verde
         } else if (value < 0) {
             element.style.color = '#e74c3c'; // Vermelho
         } else {
-            element.style.color = '#3498db'; // Azul (padrão)
+            element.style.color = '#3498db'; // Azul
         }
     }
+}
     
     updateBalanceColor(currentBalanceElem, currentBalance);
     updateBalanceColor(document.getElementById('real-balance'), realBalance);
