@@ -2958,28 +2958,36 @@ document.addEventListener('click', (e) => {
     }
 });
 
-    // Carrega as transações e atualiza a UI ao carregar a página
-    document.addEventListener('DOMContentLoaded', () => {
+   document.addEventListener('DOMContentLoaded', () => {
+    // Carregar a API do Google de forma assíncrona
+    const loadGoogleAPI = () => {
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://apis.google.com/js/api.js';
+            script.onload = () => {
+                console.log('Google API carregada');
+                resolve(true);
+            };
+            script.onerror = () => {
+                console.error('Erro ao carregar Google API');
+                resolve(false);
+            };
+            document.body.appendChild(script);
+        });
+    };
+
+    // Carregar tudo
+    (async () => {
         populateCategories();
         loadTransactions();
         loadNotificationSettings();
         addSampleData();
-        
-        // Inicializar o botão de voltar ao topo
         toggleBackToTopButton();
         
-        // Verificar se é hora da notificação ao carregar a página
-        if (notificationEnabled && Notification.permission === "granted") {
-            const [hours, minutes] = notificationTime.split(':').map(Number);
-            const now = new Date();
-            
-            // Se já passou do horário hoje e ainda não mostramos notificação
-            if ((now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes)) &&
-                localStorage.getItem('lastNotificationDate') !== new Date().toDateString()) {
-                showNotification();
-            }
-        }
-    });
+        // Carregar API do Google em segundo plano
+        await loadGoogleAPI();
+    })();
+});
 
     // --- Google Drive Integration ---
 
@@ -3004,15 +3012,22 @@ async function loadGoogleAPI() {
     });
 }
 
-// Inicializar a API do Google Drive
 async function initGoogleDrive() {
     try {
+        // Verificar se a API já está carregada
         if (!window.gapi) {
             throw new Error('API do Google não carregada');
         }
 
-        await loadGoogleAPI();
-        
+        // Carregar as bibliotecas necessárias
+        await new Promise((resolve, reject) => {
+            gapi.load('client:auth2', {
+                callback: resolve,
+                onerror: reject,
+                timeout: 5000
+            });
+        });
+
         // Inicializar o cliente
         await gapi.client.init({
             apiKey: API_KEY,
@@ -3023,39 +3038,52 @@ async function initGoogleDrive() {
 
         googleAuth = gapi.auth2.getAuthInstance();
         googleApiInitialized = true;
-        
+
         // Verificar login existente
         if (googleAuth.isSignedIn.get()) {
             googleUser = googleAuth.currentUser.get();
             console.log('Usuário já logado:', googleUser.getBasicProfile().getName());
         }
-        
+
         return true;
     } catch (error) {
         console.error('Erro ao inicializar Google Drive:', error);
-        showNotification('Erro ao conectar com o Google Drive', 'error');
+        showNotification('Erro ao conectar com o Google Drive: ' + error.message, 'error');
         return false;
     }
 }
 
-// Autenticar com o Google Drive
 async function authenticateGoogleDrive() {
     try {
+        // Verificar se a API está carregada
+        const apiLoaded = await checkGoogleAPI();
+        if (!apiLoaded) {
+            throw new Error('Falha ao carregar a API do Google');
+        }
+
         if (!googleApiInitialized) {
             const initialized = await initGoogleDrive();
             if (!initialized) return false;
         }
-        
+
         if (!googleAuth.isSignedIn.get()) {
             googleUser = await googleAuth.signIn();
             console.log('Usuário logado:', googleUser.getBasicProfile().getName());
             showNotification('Conectado ao Google Drive com sucesso!', 'success');
         }
-        
+
         return true;
     } catch (error) {
         console.error('Erro na autenticação:', error);
-        showNotification('Erro ao conectar com o Google Drive', 'error');
+        
+        let errorMessage = 'Erro ao conectar com o Google Drive';
+        if (error.error === 'popup_closed_by_user') {
+            errorMessage = 'Você fechou a janela de login';
+        } else if (error.message) {
+            errorMessage += ': ' + error.message;
+        }
+        
+        showNotification(errorMessage, 'error');
         return false;
     }
 }
@@ -3287,6 +3315,23 @@ document.addEventListener('DOMContentLoaded', () => {
     script.onerror = () => console.error('Erro ao carregar Google API');
     document.body.appendChild(script);
 });
+
+async function checkGoogleAPI() {
+    return new Promise((resolve) => {
+        if (window.gapi && window.gapi.client) {
+            resolve(true);
+        } else {
+            const script = document.createElement('script');
+            script.src = 'https://apis.google.com/js/api.js';
+            script.onload = () => {
+                // Esperar um pouco para garantir que a API está totalmente carregada
+                setTimeout(() => resolve(true), 500);
+            };
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        }
+    });
+}
 </script>
 
 </body>
