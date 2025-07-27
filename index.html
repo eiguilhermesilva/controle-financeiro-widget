@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -1207,6 +1208,24 @@
             width: 260px;
         }
     }
+    
+    .btn-drive {
+    background: linear-gradient(to right, #4285F4, #34A853);
+    width: 100%;
+    margin-top: 15px;
+    padding: 14px;
+    font-size: 1.0em;
+    justify-content: center;
+}
+
+.btn-drive:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(66, 133, 244, 0.3);
+}
+
+.mobile-export-button.drive {
+    background: linear-gradient(to right, #4285F4, #34A853);
+}
     </style>
 </head>
 <body>
@@ -1416,6 +1435,12 @@
             <button id="share-whatsapp" class="btn btn-whatsapp">
                 <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
             </button>
+            <button id="sync-drive" class="btn btn-drive">
+                <i class="fab fa-google-drive"></i> Sincronizar com Google Drive
+            </button>
+            <button id="load-drive" class="btn btn-drive">
+        <i class="fas fa-cloud-download-alt"></i> Carregar do Google Drive
+    </button>
         </div>
         
         <!-- NOVA SEÇÃO DE BOTÕES COMPACTOS PARA MOBILE -->
@@ -1444,6 +1469,14 @@
                 <i class="fas fa-camera"></i>
                 <span>Imagem</span>
             </button>
+            <button class="mobile-export-button drive" id="mobile-drive-sync">
+                <i class="fab fa-google-drive"></i>
+                <span>Sincronizar</span>
+            </button>
+    <button class="mobile-export-button drive" id="mobile-drive-load">
+        <i class="fas fa-cloud-download-alt"></i>
+        <span>Carregar</span>
+    </button>
         </div>
         
         <div class="back-to-top" id="back-to-top">
@@ -2925,6 +2958,216 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Variáveis para controle do Google Drive
+let googleAuth = null;
+let googleUser = null;
+const CLIENT_ID = '950131462140-3khqietah1o182jgk70sem6e9vmm4497.apps.googleusercontent.com'; // Substitua pelo seu Client ID
+const API_KEY = 'AIzaSyA5mz_ApcqO9-z8YdFMSpk4gQm4MMOYk0Q'; // Substitua pela sua API Key
+const APP_FOLDER_NAME = 'GG_Controle_Financeiro';
+const DATA_FILE_NAME = 'dados_financeiros.json';
+let appFolderId = null;
+
+// Inicializar a API do Google
+function initGoogleDrive() {
+    gapi.load('client:auth2', () => {
+        gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+            scope: "https://www.googleapis.com/auth/drive.file"
+        }).then(() => {
+            googleAuth = gapi.auth2.getAuthInstance();
+            
+            // Verificar se o usuário já está logado
+            if (googleAuth.isSignedIn.get()) {
+                googleUser = googleAuth.currentUser.get();
+                console.log('Usuário já logado:', googleUser.getBasicProfile().getName());
+            }
+        }).catch(err => {
+            console.error('Erro ao inicializar Google API:', err);
+        });
+    });
+}
+
+// Autenticar com o Google Drive
+async function authenticateGoogleDrive() {
+    try {
+        if (!googleAuth) {
+            await initGoogleDrive();
+        }
+        
+        if (!googleAuth.isSignedIn.get()) {
+            googleUser = await googleAuth.signIn();
+            console.log('Usuário logado:', googleUser.getBasicProfile().getName());
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Erro na autenticação:', error);
+        alert('Erro ao conectar com o Google Drive: ' + error.message);
+        return false;
+    }
+}
+
+// Encontrar ou criar a pasta do aplicativo
+async function getOrCreateAppFolder() {
+    try {
+        // Procurar pela pasta do aplicativo
+        const response = await gapi.client.drive.files.list({
+            q: `name='${APP_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+            fields: 'files(id, name)'
+        });
+        
+        if (response.result.files.length > 0) {
+            appFolderId = response.result.files[0].id;
+            return appFolderId;
+        }
+        
+        // Se não encontrou, criar nova pasta
+        const folderMetadata = {
+            name: APP_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder'
+        };
+        
+        const folder = await gapi.client.drive.files.create({
+            resource: folderMetadata,
+            fields: 'id'
+        });
+        
+        appFolderId = folder.result.id;
+        return appFolderId;
+    } catch (error) {
+        console.error('Erro ao criar/obter pasta:', error);
+        throw error;
+    }
+}
+
+// Salvar dados no Google Drive
+async function saveToGoogleDrive() {
+    try {
+        const isAuthenticated = await authenticateGoogleDrive();
+        if (!isAuthenticated) return;
+        
+        await getOrCreateAppFolder();
+        
+        // Verificar se o arquivo já existe
+        const fileList = await gapi.client.drive.files.list({
+            q: `name='${DATA_FILE_NAME}' and '${appFolderId}' in parents and trashed=false`,
+            fields: 'files(id, name)'
+        });
+        
+        // Criar os metadados do arquivo
+        const fileMetadata = {
+            name: DATA_FILE_NAME,
+            mimeType: 'application/json',
+            parents: [appFolderId]
+        };
+        
+        // Converter os dados para JSON
+        const exportData = {
+            app: "Controle Financeiro",
+            version: "1.0",
+            timestamp: new Date().toISOString(),
+            transactions: transactions
+        };
+        
+        const jsonData = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        
+        // Se o arquivo já existe, atualizá-lo
+        if (fileList.result.files.length > 0) {
+            const fileId = fileList.result.files[0].id;
+            
+            await gapi.client.drive.files.update({
+                fileId: fileId,
+                media: {
+                    mimeType: 'application/json',
+                    body: blob
+                }
+            });
+            
+            notificationText.textContent = "Dados atualizados no Google Drive com sucesso!";
+        } else {
+            // Se não existe, criar novo arquivo
+            await gapi.client.drive.files.create({
+                resource: fileMetadata,
+                media: {
+                    mimeType: 'application/json',
+                    body: blob
+                },
+                fields: 'id'
+            });
+            
+            notificationText.textContent = "Dados salvos no Google Drive com sucesso!";
+        }
+        
+        showExportNotification();
+    } catch (error) {
+        console.error('Erro ao salvar no Google Drive:', error);
+        alert('Erro ao salvar no Google Drive: ' + error.message);
+    }
+}
+
+// Carregar dados do Google Drive
+async function loadFromGoogleDrive() {
+    try {
+        const isAuthenticated = await authenticateGoogleDrive();
+        if (!isAuthenticated) return;
+        
+        await getOrCreateAppFolder();
+        
+        // Buscar o arquivo de dados
+        const fileList = await gapi.client.drive.files.list({
+            q: `name='${DATA_FILE_NAME}' and '${appFolderId}' in parents and trashed=false`,
+            fields: 'files(id, name)'
+        });
+        
+        if (fileList.result.files.length === 0) {
+            alert('Nenhum arquivo de dados encontrado no Google Drive.');
+            return;
+        }
+        
+        const fileId = fileList.result.files[0].id;
+        
+        // Obter o conteúdo do arquivo
+        const response = await gapi.client.drive.files.get({
+            fileId: fileId,
+            alt: 'media'
+        });
+        
+        // Processar os dados
+        const data = response.result;
+        
+        if (!data.transactions || !Array.isArray(data.transactions)) {
+            throw new Error("Formato de arquivo inválido");
+        }
+        
+        // Perguntar ao usuário como deseja importar
+        const importOption = confirm("Deseja substituir todos os dados atuais pelos dados do Google Drive? (Cancelar para mesclar)") 
+            ? "replace" 
+            : "merge";
+        
+        if (importOption === "replace") {
+            transactions = data.transactions;
+        } else {
+            // Mesclar transações, evitando duplicatas por ID
+            const existingIds = transactions.map(t => t.id);
+            const newTransactions = data.transactions.filter(t => !existingIds.includes(t.id));
+            transactions = [...transactions, ...newTransactions];
+        }
+        
+        // Salvar e atualizar
+        saveTransactions();
+        updateUI();
+        
+        notificationText.textContent = `Dados carregados do Google Drive com sucesso! (${data.transactions.length} transações)`;
+        showExportNotification();
+    } catch (error) {
+        console.error('Erro ao carregar do Google Drive:', error);
+        alert('Erro ao carregar do Google Drive: ' + error.message);
+    }
+}
+
     // Carrega as transações e atualiza a UI ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
         populateCategories();
@@ -2947,6 +3190,18 @@ document.addEventListener('click', (e) => {
             }
         }
     });
+
+    // Event listeners para Google Drive
+document.getElementById('sync-drive').addEventListener('click', saveToGoogleDrive);
+document.getElementById('load-drive').addEventListener('click', loadFromGoogleDrive);
+document.getElementById('mobile-drive-sync').addEventListener('click', saveToGoogleDrive);
+document.getElementById('mobile-drive-load').addEventListener('click', loadFromGoogleDrive);
+
+// Inicializar a API do Google quando a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+    // ... código existente ...
+    initGoogleDrive();
+});
 </script>
 
 </body>
